@@ -524,7 +524,7 @@
               <span class="ca-arr ca-grpo-step-q">→</span>
               <div class="ca-rollout ca-rollout-grpo">
                 <span class="ca-seg ca-seg-think ca-grpo-step-0">
-                  think
+                  tool-think
                   <!-- GRPO assigns − and STAYS − for the entire loop. GRPO
                        has no resampling mechanism, so even though AXPO's
                        working copy below flips this think to + once a
@@ -588,7 +588,7 @@
                      GRPO think and the AXPO think below. All three thinks
                      flip in unison once the successful re-rollout lands. -->
                 <span class="ca-seg ca-seg-think ca-copy-step-0 ca-copy-think-host">
-                  think
+                  tool-think
                   <span class="ca-seg-reward ca-seg-reward-neg ca-copy-reward ca-copy-think-flip-out"
                         aria-label="negative reward">−</span>
                   <span class="ca-seg-reward ca-seg-reward-pos ca-copy-think-flip-in"
@@ -629,7 +629,7 @@
                     fill="none" stroke="currentColor" stroke-width="2.4"
                     stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span class="ca-flow-arrow-label">extract Question and think</span>
+            <span class="ca-flow-arrow-label">extract Question and tool-think</span>
           </div>
 
           <!-- Stage 3: AXPO step 2 — frozen <think> prefix + re-rollouts.
@@ -638,7 +638,7 @@
                verdict) is re-sampled three times from that prefix. -->
           <div class="ca-step ca-step-axpo">
             <div class="ca-step-label">
-              <span class="ca-tag">Step 2 — Resample tool calls from Question and think prefix</span>
+              <span class="ca-tag">Step 2 — Resample tool calls from Question and tool-think prefix</span>
             </div>
 
             <!-- Tree: Question chip sits outside the trunk (matches the
@@ -663,7 +663,7 @@
                    AXPO-specific operator joining the two borrowed pieces. -->
               <span class="ca-arr ca-arr-plus ca-axpo-plus" aria-label="plus">+</span>
               <span class="ca-seg ca-seg-think ca-seg-borrowed ca-tree-trunk ca-axpo-think-host">
-                think
+                tool-think
                 <span class="ca-seg-pin" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><use href="#thumbtack"/></svg>
                 </span>
@@ -766,11 +766,11 @@
            "what's happening", this is the "how it's written up". -->
       <figure class="figure-card method-paper-figure">
         <img class="paper-fig-img" src="assets/concept.png"
-             alt="AXPO method diagram: tool-call resampling re-rolls a frozen question + think prefix after a tool-collapsed GRPO rollout, recovering tool usage without sacrificing reward signal." />
+             alt="AXPO method diagram: tool-call resampling re-rolls a frozen question + tool-think prefix after a tool-collapsed GRPO rollout, recovering tool usage without sacrificing reward signal." />
         <figcaption class="fig-caption">
           <strong>AXPO at a glance.</strong> When a GRPO rollout
           tool-collapses on the way to a wrong answer, AXPO freezes the
-          <em>Question + Think</em> prefix and re-rolls only the tail —
+          <em>Question + Tool-think</em> prefix and re-rolls only the tail —
           forcing the policy to actually emit a tool call. Step&nbsp;1
           and Step&nbsp;2 above visualize the same procedure live.
         </figcaption>
