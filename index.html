@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>NVIDIA-AXPO</title>
+  <meta name="description"
+        content="AXPO: Agent eXplorative Policy Optimization for Multimodal Agentic Reasoning." />
+  <!-- ─────────────  Link-preview / social cards  ─────────────
+       Controls what KakaoTalk / Slack / iMessage / Discord / Twitter /
+       LinkedIn show when this URL is pasted into a chat. The
+       `og:image` MUST be an absolute https:// URL because messengers
+       fetch it from their own servers and won't resolve relative
+       paths. If you change the thumbnail file, also bump the `?v=`
+       query param so caches refetch.
+       To force-refresh a cached preview:
+         · Facebook / generic OG: https://developers.facebook.com/tools/debug/
+         · KakaoTalk:             https://developers.kakao.com/tool/clear/og
+         · Twitter:               https://cards-dev.twitter.com/validator
+         · LinkedIn:              https://www.linkedin.com/post-inspector/  -->
+  <meta property="og:title" content="AXPO — Agent eXplorative Policy Optimization" />
+  <meta property="og:description"
+        content="An RL algorithm that targets the Thinking-Acting Gap in multimodal agentic reasoning." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="NVIDIA-AXPO" />
+  <meta property="og:url" content="https://byungkwanlee.github.io/AXPO-page/" />
+  <!-- Bump `?v=` whenever the PNG changes to bust messenger caches
+       (KakaoTalk / Slack / iMessage / Discord / Twitter / LinkedIn
+       all aggressively cache OG images by URL). -->
+  <meta property="og:image"
+        content="https://byungkwanlee.github.io/AXPO-page/assets/og-thumbnail.png?v=4" />
+  <meta property="og:image:secure_url"
+        content="https://byungkwanlee.github.io/AXPO-page/assets/og-thumbnail.png?v=4" />
+  <meta property="og:image:alt"
+        content="NVIDIA × AXPO — Agent eXplorative Policy Optimization for Multimodal Agentic Reasoning." />
+  <meta property="og:image:type"   content="image/png" />
+  <meta property="og:image:width"  content="1672" />
+  <meta property="og:image:height" content="941" />
+
+  <!-- Twitter / X uses its own card spec; `summary_large_image` gives
+       the same wide-thumbnail layout most messengers show. -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="AXPO — Agent eXplorative Policy Optimization" />
+  <meta name="twitter:description"
+        content="An RL algorithm that targets the Thinking-Acting Gap in multimodal agentic reasoning." />
+  <meta name="twitter:image"
+        content="https://byungkwanlee.github.io/AXPO-page/assets/og-thumbnail.png?v=4" />
+  <meta name="twitter:image:alt"
+        content="NVIDIA × AXPO — Agent eXplorative Policy Optimization for Multimodal Agentic Reasoning." />
+
+  <!-- Tells native browser UI (form controls, scrollbars, default
+       background between paint and stylesheet) which color world to
+       expect. Updated live by JS together with `data-theme`. -->
+  <meta name="color-scheme" content="light dark" />
+  <!-- Mobile browser chrome / iOS status-bar color. The JS bootstrap
+       below rewrites the `content` to match the active theme so the
+       URL bar always matches the page background. -->
+  <meta id="meta-theme-color" name="theme-color" content="#ffffff" />
+
+  <!-- Theme bootstrap: runs synchronously BEFORE the stylesheet paints
+       to avoid a flash-of-wrong-theme on mobile. Mirrors the logic in
+       script.js (localStorage > prefers-color-scheme > light). -->
+  <script>
+    (function () {
+      try {
+        var stored = null;
+        try { stored = localStorage.getItem("axpo-theme"); } catch (e) {}
+        var theme = stored;
+        if (!theme) {
+          theme = window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+        var meta = document.getElementById("meta-theme-color");
+        if (meta) meta.setAttribute("content", theme === "dark" ? "#0b0f0d" : "#ffffff");
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Official NVIDIA favicon, served from nvidia.com (same approach as
+       byungkwanlee.github.io/VLsI-page). Identical to the icon you see
+       on nvidia.com itself, so the browser tab carries the canonical
+       NVIDIA mark with zero local maintenance. -->
+  <link rel="shortcut icon" type="image/png" href="https://www.nvidia.com/favicon.ico" />
+</head>
+<body>
+  <!-- ─────────────  Open-Graph fallback image  ─────────────
+       Some chat-app crawlers (KakaoTalk, iMessage, …) honor og:image
+       only as a hint and otherwise grab whichever `<img>` appears
+       first in the DOM. If we don't put our thumbnail first, they
+       silently fall back to the next `<img>` on the page (in our
+       case the paper's concept.png in the Method section). So we
+       declare og-thumbnail.png as the very first `<img>` of <body>,
+       visually hidden via the inline style. Sighted users never see
+       it; crawlers always see it and their "first-img" heuristic
+       lines up with our og:image meta. -->
+  <img src="assets/og-thumbnail.png?v=4"
+       alt="AXPO link-preview thumbnail: NVIDIA × AXPO — Agent eXplorative Policy Optimization for Multimodal Agentic Reasoning."
+       width="1672" height="941"
+       fetchpriority="low" decoding="async" loading="eager"
+       style="position:absolute; left:0; top:0; width:1px; height:1px; opacity:0; pointer-events:none; clip:rect(0 0 0 0); clip-path:inset(50%);"
+       aria-hidden="true" />
+
+  <!-- ─────────────  Shared SVG defs  ─────────────
+       Single-source SVG symbols referenced via <use href="#…"> elsewhere.
+       Keeps pin/marker styling consistent across the page and avoids
+       repeating identical inline SVG markup. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <!-- 3D side-view pushpin (압정) — big colorful ball on the top-left,
+           tapered silver pin emerging from behind it down to the right.
+           Mirrors the realistic look of the AXPO paper illustration but
+           with a vibrant yellow→orange→red molten gradient on the ball so
+           it pops against any background. Sized at 32×32 with generous
+           shapes so it still reads as a thumbtack at ~14px. -->
+      <symbol id="thumbtack" viewBox="0 0 32 32">
+        <defs>
+          <!-- Vibrant ball gradient: hot highlight on the upper-left -->
+          <radialGradient id="tt-ball-grad" cx="32%" cy="28%" r="78%">
+            <stop offset="0%"   stop-color="#fef3c7"/>
+            <stop offset="18%"  stop-color="#fde047"/>
+            <stop offset="42%"  stop-color="#fb923c"/>
+            <stop offset="72%"  stop-color="#dc2626"/>
+            <stop offset="100%" stop-color="#7f1d1d"/>
+          </radialGradient>
+          <!-- Silver shaft gradient: bright stripe on the upper side -->
+          <linearGradient id="tt-shaft-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="#e2e8f0"/>
+            <stop offset="45%"  stop-color="#94a3b8"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Pin shaft: a tapered wedge going from behind the ball
+             (upper-left base) down to a sharp tip at lower-right.
+             Drawn first so the ball overlaps and hides its base. -->
+        <path d="M14 18 L19 13.5 L28.5 29 L26.5 30 Z" fill="url(#tt-shaft-grad)"/>
+        <!-- Tip: small dark triangle for a "sharp metal" finish -->
+        <path d="M26.5 30 L28.5 29 L29 30.5 Z" fill="#0f172a"/>
+
+        <!-- Cap base shadow: dark patch where shaft enters the ball -->
+        <ellipse cx="16.5" cy="16" rx="3" ry="1.6" fill="#000" opacity="0.35"
+                 transform="rotate(-38 16.5 16)"/>
+
+        <!-- Big colorful round ball -->
+        <circle cx="11" cy="11" r="9" fill="url(#tt-ball-grad)"/>
+        <!-- Bottom-half shadow (gives the sphere its 3D roundness) -->
+        <path d="M2 11 A9 9 0 0 0 20 11 Z" fill="#000" opacity="0.18"/>
+        <!-- Subtle rim darkening on the lower-right edge -->
+        <path d="M20 11 A9 9 0 0 1 14 19.6" fill="none" stroke="#7f1d1d"
+              stroke-width="1.2" opacity="0.55"/>
+        <!-- Top-left specular highlight (the "shine" on the sphere) -->
+        <ellipse cx="7.5" cy="7" rx="3" ry="1.8" fill="#ffffff" opacity="0.75"
+                 transform="rotate(-35 7.5 7)"/>
+        <!-- Tiny specular dot for a glassy finish -->
+        <circle cx="6" cy="6" r="1" fill="#ffffff" opacity="0.95"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- ─────────────  Top nav  ───────────── -->
+  <header class="nav">
+    <div class="nav-inner">
+      <a href="#top" class="brand" aria-label="NVIDIA">
+        <span class="brand-mark">
+          <svg class="nvidia-logo" xmlns="http://www.w3.org/2000/svg"
+               viewBox="0 0 164 30" aria-hidden="true">
+            <!-- ® and NVIDIA wordmark — follow theme color -->
+            <path fill="currentColor"
+                  d="M160.352,24.069L160.352,23.62L160.64,23.62C160.797,23.62 161.011,23.632 161.011,23.824C161.011,24.032 160.901,24.069 160.715,24.069L160.352,24.069M160.352,24.384L160.544,24.384L160.991,25.168L161.481,25.168L160.987,24.352C161.242,24.333 161.452,24.212 161.452,23.868C161.452,23.441 161.157,23.303 160.659,23.303L159.938,23.303L159.938,25.168L160.352,25.168L160.352,24.384M162.45,24.238C162.45,23.143 161.599,22.508 160.65,22.508C159.695,22.508 158.845,23.143 158.845,24.238C158.845,25.333 159.695,25.971 160.65,25.971C161.598,25.971 162.45,25.333 162.45,24.238M161.93,24.238C161.93,25.036 161.343,25.572 160.65,25.572L160.65,25.566C159.937,25.572 159.361,25.036 159.361,24.238C159.361,23.441 159.938,22.907 160.65,22.907C161.344,22.907 161.93,23.441 161.93,24.238"/>
+            <path fill="currentColor"
+                  d="M96.374,5.707L96.376,25.367L101.928,25.367L101.928,5.707L96.374,5.707ZM52.697,5.681L52.697,25.367L58.3,25.367L58.3,10.086L62.67,10.1C64.107,10.1 65.1,10.445 65.793,11.184C66.672,12.12 67.03,13.628 67.03,16.389L67.03,25.367L72.457,25.367L72.457,14.49C72.457,6.727 67.509,5.68 62.668,5.68L52.698,5.68L52.697,5.681ZM105.314,5.708L105.314,25.367L114.32,25.367C119.118,25.367 120.684,24.569 122.377,22.78C123.575,21.524 124.348,18.766 124.348,15.753C124.348,12.99 123.693,10.525 122.551,8.99C120.494,6.245 117.531,5.708 113.106,5.708L105.314,5.708ZM110.822,9.988L113.209,9.988C116.672,9.988 118.912,11.544 118.912,15.579C118.912,19.616 116.672,21.171 113.209,21.171L110.822,21.171L110.822,9.988ZM88.369,5.708L83.735,21.288L79.295,5.709L73.302,5.708L79.642,25.367L87.645,25.367L94.036,5.708L88.369,5.708ZM126.932,25.367L132.485,25.367L132.485,5.709L126.93,5.708L126.932,25.367ZM142.496,5.715L134.743,25.36L140.218,25.36L141.445,21.888L150.62,21.888L151.781,25.36L157.725,25.36L149.913,5.714L142.496,5.715ZM146.1,9.3L149.464,18.504L142.631,18.504L146.101,9.3L146.1,9.3Z"/>
+            <!-- Eye mark — always NVIDIA green -->
+            <path fill="#76b900"
+                  d="M16.889,8.985L16.889,6.28C17.151,6.26 17.417,6.247 17.687,6.238C25.087,6.006 29.942,12.597 29.942,12.597C29.942,12.597 24.698,19.879 19.076,19.879C18.333,19.882 17.594,19.764 16.889,19.529L16.889,11.325C19.769,11.673 20.349,12.945 22.081,15.833L25.933,12.585C25.933,12.585 23.121,8.897 18.381,8.897C17.866,8.897 17.373,8.933 16.889,8.985ZM16.889,0.047L16.889,4.09C17.154,4.069 17.42,4.052 17.687,4.042C27.977,3.696 34.682,12.482 34.682,12.482C34.682,12.482 26.982,21.846 18.959,21.846C18.224,21.846 17.535,21.778 16.889,21.663L16.889,24.161C17.442,24.231 18.015,24.273 18.613,24.273C26.078,24.273 31.477,20.461 36.705,15.948C37.572,16.642 41.121,18.331 41.85,19.071C36.879,23.231 25.295,26.586 18.727,26.586C18.113,26.584 17.5,26.552 16.889,26.49L16.889,30L45.264,30L45.264,0.047L16.889,0.047ZM16.889,19.529L16.889,21.662C9.984,20.432 8.067,13.254 8.067,13.254C8.067,13.254 11.383,9.58 16.889,8.985L16.889,11.325L16.878,11.324C13.988,10.977 11.731,13.677 11.731,13.677C11.731,13.677 12.996,18.221 16.889,19.529ZM4.625,12.943C4.625,12.943 8.717,6.903 16.889,6.28L16.889,4.088C7.838,4.815 0,12.48 0,12.48C0,12.48 4.439,25.313 16.889,26.488L16.889,24.16C7.753,23.011 4.625,12.943 4.625,12.943Z"/>
+          </svg>
+        </span>
+      </a>
+
+      <nav class="nav-links" role="tablist" aria-label="Page sections">
+        <a href="#tldr"        data-target="tldr">TL;DR</a>
+        <a href="#method"      data-target="method">Method</a>
+        <a href="#highlight"   data-target="highlight">Highlight</a>
+        <a href="#results"     data-target="results">Results</a>
+        <a href="#qualitative" data-target="qualitative">Qualitative</a>
+      </nav>
+
+      <button id="theme-toggle" class="theme-toggle"
+              type="button"
+              aria-label="Switch to dark mode"
+              aria-pressed="false"
+              title="Toggle dark / light theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ─────────────  Hero  ───────────── -->
+  <section id="top" class="hero">
+    <div class="container">
+      <h1 class="title">
+        <span class="title-accent">A</span>gent e<span class="title-accent">X</span>plorative
+        <span class="title-accent">P</span>olicy <span class="title-accent">O</span>ptimization
+      </h1>
+      <p class="subtitle">
+        for Multimodal Agentic Reasoning
+      </p>
+
+      <!-- Authors -->
+      <div class="authors">
+        <span class="author"><a href="https://nardien.github.io/" target="_blank" rel="noopener" class="auth-link">Minki Kang</a><sup>1,2*</sup></span>
+        <span class="author"><a href="https://shizhediao.github.io/" target="_blank" rel="noopener" class="auth-link">Shizhe Diao</a><sup>1</sup></span>
+        <span class="author"><a href="https://ryohachiuma.github.io/" target="_blank" rel="noopener" class="auth-link">Ryo Hachiuma</a><sup>1</sup></span>
+        <span class="author"><a href="http://www.sungjuhwang.com/" target="_blank" rel="noopener" class="auth-link">Sung Ju Hwang</a><sup>2</sup></span>
+        <span class="author"><a href="https://pmolchanov.com/" target="_blank" rel="noopener" class="auth-link">Pavlo Molchanov</a><sup>1</sup></span>
+        <span class="author"><a href="https://vllab.ee.ntu.edu.tw/ycwang.html" target="_blank" rel="noopener" class="auth-link">Yu-Chiang Frank Wang</a><sup>1</sup></span>
+        <span class="author"><a href="https://byungkwanlee.github.io/ByungKwanLee-CV/" target="_blank" rel="noopener" class="auth-link">Byung-Kwan Lee</a><sup>1†</sup></span>
+      </div>
+
+      <div class="affiliations">
+        <span><sup>1</sup>NVIDIA</span>
+        <span><sup>2</sup>KAIST</span>
+      </div>
+      <div class="affiliations small">
+        <span><sup>*</sup>Work done during internship at NVIDIA.</span>
+        <span><sup>†</sup>Project lead.</span>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="actions">
+        <a href="https://arxiv.org/" target="_blank" rel="noopener" class="btn btn-paper">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          Paper <span class="soon">(ArXiv)</span>
+        </a>
+        <!-- Code / Models are NVIDIA-internal repos today; the
+             "Internal-Use Only" pill + small "Coming soon to public"
+             sub-caption tells external visitors the release is
+             planned but the link won't work for them yet. -->
+        <div class="btn-stack">
+          <a href="https://gitlab-master.nvidia.com/minkik/axpo" target="_blank" rel="noopener" class="btn btn-code">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.38 7.86 10.9.58.1.79-.25.79-.55v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.27-1.68-1.27-1.68-1.04-.7.08-.69.08-.69 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.18 1.18.92-.26 1.91-.39 2.9-.39s1.98.13 2.9.39c2.21-1.49 3.18-1.18 3.18-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.41-5.25 5.69.41.36.77 1.07.77 2.16v3.2c0 .31.21.66.8.55C20.21 21.38 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/>
+            </svg>
+            Code <span class="soon">(Internal-Use Only)</span>
+          </a>
+          <span class="btn-coming">Coming soon to public</span>
+        </div>
+        <div class="btn-stack">
+          <a href="https://gitlab-master.nvidia.com/minkik/axpo#run-inference-released-checkpoint"
+             target="_blank" rel="noopener" class="btn btn-models">
+            <span class="hf-emoji" aria-hidden="true">🤗</span>
+            Models <span class="soon">(Internal-Use Only)</span>
+          </a>
+          <span class="btn-coming">Coming soon to public</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-glow" aria-hidden="true"></div>
+  </section>
+
+  <!-- ─────────────  TL;DR  ─────────────
+       Narrative is "claim → visual proof → detailed explanation":
+         1) Two bold headlines state the problem & the solution.
+         2) The dual-bar animation visualizes both claims at once
+            (GRPO Tool Usage shrinks, AXPO grows both, reference 32B).
+         3) Two paragraphs unpack each headline in detail. -->
+  <section id="tldr" class="section">
+    <div class="container narrow">
+      <h2 class="section-title centered">TL;DR</h2>
+
+      <!-- (1) Visual FIRST: dual-bar animation lands the proof at a
+           glance, so the headlines below read as "what you just saw". -->
+      <figure class="figure-card anim-card anim-bars-figure tldr-anim">
+        <div class="anim-stage anim-bars-stage">
+          <!-- RL training progress indicator: 0% → 100% in sync with
+               the bars below growing/shrinking. Makes the temporal
+               framing ("these bars CHANGE during training") explicit
+               instead of leaving the viewer to infer it from the
+               pulsing bars alone. Holds at 100% while the bars sit
+               at their trained state, then resets with the loop. -->
+          <div class="rl-progress" aria-hidden="true">
+            <span class="rl-progress-label">RL Training</span>
+            <div class="rl-progress-track">
+              <div class="rl-progress-fill"></div>
+            </div>
+            <span class="rl-progress-pct" aria-hidden="true"></span>
+          </div>
+
+          <div class="bar-row">
+            <span class="bar-label bar-label-grpo">GRPO 8B</span>
+            <div class="bar-pair">
+              <div class="bar-cell">
+                <span class="bar-cap">Tool Usage</span>
+                <div class="bar-track bar-track-tool">
+                  <div class="bar bar-grpo-tool"></div>
+                  <!-- Arrow: TAIL is pinned at the RL=0% right-edge
+                       position; the HEAD (chevron) extends in lock-step
+                       with the bar, so at any moment it sits exactly
+                       where the bar's right edge is. Same 4s
+                       cubic-bezier curve as the bar. LEFT chevron
+                       because Tool Usage SHRINKS. -->
+                  <span class="bar-arrow bar-arrow-grpo bar-arrow-left bar-arrow-trace-grpo-tool" aria-hidden="true">
+                    <span class="bar-arrow-stem"></span>
+                    <span class="bar-arrow-head"></span>
+                  </span>
+                </div>
+              </div>
+              <div class="bar-cell">
+                <span class="bar-cap">Accuracy</span>
+                <div class="bar-track bar-track-acc">
+                  <div class="bar bar-grpo-acc"></div>
+                  <!-- RIGHT chevron — Accuracy grows moderately under
+                       RL (1.0 → 1.22); arrow head extends a moderate
+                       distance, still well short of AXPO's gains. -->
+                  <span class="bar-arrow bar-arrow-grpo bar-arrow-trace-grpo-acc" aria-hidden="true">
+                    <span class="bar-arrow-stem"></span>
+                    <span class="bar-arrow-head"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bar-row">
+            <span class="bar-label bar-label-axpo">AXPO 8B</span>
+            <div class="bar-pair">
+              <div class="bar-cell">
+                <span class="bar-cap">Tool Usage</span>
+                <div class="bar-track bar-track-tool">
+                  <div class="bar bar-axpo-tool"></div>
+                  <!-- RIGHT chevron — Tool Usage grows (1.0 → 1.28);
+                       arrow head extends rightward with the bar. -->
+                  <span class="bar-arrow bar-arrow-axpo bar-arrow-trace-axpo-tool" aria-hidden="true">
+                    <span class="bar-arrow-stem"></span>
+                    <span class="bar-arrow-head"></span>
+                  </span>
+                </div>
+              </div>
+              <div class="bar-cell">
+                <span class="bar-cap">Accuracy</span>
+                <div class="bar-track bar-track-acc">
+                  <div class="bar bar-axpo-acc"></div>
+                  <!-- RIGHT chevron — Accuracy grows the most of any
+                       bar (1.0 → 1.55); arrow head travels the
+                       longest distance. -->
+                  <span class="bar-arrow bar-arrow-axpo bar-arrow-trace-axpo-acc" aria-hidden="true">
+                    <span class="bar-arrow-stem"></span>
+                    <span class="bar-arrow-head"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bar-row bar-row-ref">
+            <span class="bar-label bar-label-ref">Agent Baseline 32B</span>
+            <div class="bar-pair">
+              <div class="bar-cell">
+                <span class="bar-cap">Tool Usage</span>
+                <div class="bar-track bar-track-tool">
+                  <div class="bar bar-ref-tool"></div>
+                </div>
+              </div>
+              <div class="bar-cell">
+                <span class="bar-cap">Accuracy</span>
+                <div class="bar-track bar-track-acc">
+                  <div class="bar bar-ref-acc"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption class="fig-caption">
+          Through training,
+          <strong style="color:var(--col-grpo)">GRPO 8B</strong>'s Tool Usage
+          <em>shrinks</em>, while
+          <strong style="color:var(--col-axpo)">AXPO 8B</strong> grows
+          <em>both</em> — and AXPO's Accuracy bar even surpasses the
+          <strong style="color:var(--col-ref)">Agent Baseline 32B</strong>
+          (Qwen3-VL-32B-Thinking, <strong>4×</strong> larger) reference row below.
+        </figcaption>
+      </figure>
+
+      <!-- (2) Body: each colored headline sits DIRECTLY above the
+           paragraph that unpacks it, so the eye reads "problem →
+           why it happens", "solution → how it works" as two clean
+           claim+explanation blocks. -->
+      <div class="tldr-body">
+        <div class="tldr-block tldr-block-problem">
+          <p class="tldr-claim">
+            <strong class="tldr-head tldr-problem">Problem: Standard GRPO with Agent leads to Tool Collapse.</strong>
+          </p>
+          <p>
+            Under standard GRPO, tool-using rollouts mostly fail while no-tool-using rollouts mostly succeed, so the model avoids using tool — the tool call gets no positive signal precisely when it
+            would help.
+          </p>
+        </div>
+        <div class="tldr-block tldr-block-solution">
+          <p class="tldr-claim">
+            <strong class="tldr-head tldr-solution">Solution: Tool-call Resampling to find correct ones.</strong>
+          </p>
+          <p>
+            <strong>AXPO (Ours)</strong> resamples the tool-using responses again to find correct tool-using responses. In the end, tool usage recovers, the model learns to actually use tools, and
+            performance climbs across nine multimodal benchmarks.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────  Metric bar (Sana-style stats)  ───────────── -->
+  <section class="metrics-band">
+    <div class="container">
+      <div class="metric">
+        <div class="metric-value">+7.9<span class="unit">pp</span></div>
+        <div class="metric-label">Pass@1 at 8B<br/>vs. baseline</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">+6.2<span class="unit">pp</span></div>
+        <div class="metric-label">Pass@4 at 8B<br/>vs. baseline</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">4<span class="unit">×</span></div>
+        <div class="metric-label">Fewer params<br/>beats 32B Base @ Pass@4</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">9</div>
+        <div class="metric-label">Multimodal benchmarks<br/>(Reasoning · Perception · Search)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────  Method (AXPO mechanism animation)  ───────────── -->
+  <section id="method" class="section section-alt">
+    <div class="container">
+      <h2 class="section-title centered">Method</h2>
+
+      <!-- AXPO mechanism animation -->
+      <figure class="figure-card concept-anim-figure">
+        <!-- Replay control: animation plays ONCE (auto-paused at the
+             hold frame), then this button re-enables it on demand so
+             the viewer can study the static end state without the
+             loop continuing to distract. -->
+        <button class="ca-retry-btn" id="ca-retry-btn" type="button"
+                aria-label="Replay the AXPO mechanism animation">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 12a8 8 0 1 0 2.34-5.66M4 4v6h6"
+                  fill="none" stroke="currentColor" stroke-width="2.4"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Replay
+        </button>
+        <div class="ca-stage">
+
+          <!-- Reward legend: shown at the top so the meaning of the −/+
+               badges and ✗/✓ verdicts is obvious before the animation
+               even starts. Static (not animated) so it's always readable. -->
+          <div class="ca-legend" role="note" aria-label="Reward legend">
+            <span class="ca-legend-item">
+              <span class="ca-legend-badge ca-legend-badge-pos" aria-hidden="true">+</span>
+              Pos reward
+            </span>
+            <span class="ca-legend-item">
+              <span class="ca-legend-badge ca-legend-badge-neg" aria-hidden="true">−</span>
+              Neg reward
+            </span>
+            <span class="ca-legend-sep" aria-hidden="true"></span>
+            <span class="ca-legend-item">
+              <span class="ca-legend-verdict ca-legend-verdict-good" aria-hidden="true">✓</span>
+              Correct
+            </span>
+            <span class="ca-legend-item">
+              <span class="ca-legend-verdict ca-legend-verdict-bad" aria-hidden="true">✗</span>
+              Wrong
+            </span>
+            <span class="ca-legend-sep" aria-hidden="true"></span>
+            <span class="ca-legend-item">
+              <span class="ca-legend-pin" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><use href="#thumbtack"/></svg>
+              </span>
+              Frozen prefix
+            </span>
+          </div>
+
+          <!-- Stage 1: GRPO — trajectory builds segment-by-segment -->
+          <div class="ca-step ca-step-grpo">
+            <div class="ca-step-label">
+              <span class="ca-method ca-method-grpo">GRPO</span>
+              <span class="ca-tag">Example</span>
+            </div>
+
+            <!-- Question is the *input*, pinned outside the rollout box so
+                 it reads as the fixed user query rather than a model token.
+                 The rollout box only contains the model's actual response. -->
+            <div class="ca-rollout-wrap">
+              <span class="ca-seg ca-seg-q ca-grpo-step-q">
+                Question
+                <span class="ca-seg-pin ca-seg-pin-static" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><use href="#thumbtack"/></svg>
+                </span>
+              </span>
+              <span class="ca-arr ca-grpo-step-q">→</span>
+              <div class="ca-rollout ca-rollout-grpo">
+                <span class="ca-seg ca-seg-think ca-grpo-step-0">
+                  think
+                  <!-- GRPO assigns − and STAYS − for the entire loop. GRPO
+                       has no resampling mechanism, so even though AXPO's
+                       working copy below flips this think to + once a
+                       correct re-rollout is found, the original GRPO
+                       trajectory remains stuck with the wrong credit. -->
+                  <span class="ca-seg-reward ca-seg-reward-neg ca-grpo-reward"
+                        aria-label="negative reward">−</span>
+                </span>
+                <span class="ca-arr ca-grpo-step-1">→</span>
+                <span class="ca-seg ca-seg-tool ca-grpo-step-1">
+                  tool call
+                  <span class="ca-seg-reward ca-seg-reward-neg ca-grpo-reward"
+                        aria-label="negative reward">−</span>
+                </span>
+                <span class="ca-arr ca-grpo-step-2">→</span>
+                <span class="ca-seg ca-seg-out ca-grpo-step-2">
+                  output
+                  <span class="ca-seg-reward ca-seg-reward-neg ca-grpo-reward"
+                        aria-label="negative reward">−</span>
+                </span>
+                <span class="ca-arr ca-grpo-step-3">→</span>
+                <span class="ca-verdict ca-bad ca-grpo-step-3">✗</span>
+              </div>
+              <!-- Diagnostic label that lands right after the ✗ verdict and
+                   names what the viewer just watched: every segment of a
+                   tool-using rollout took −, so the model learns to avoid
+                   tools — i.e. tool collapse. Sits outside the rollout box
+                   on purpose so it reads as an annotation on the row, not
+                   another segment. -->
+              <span class="ca-collapse-tag" aria-label="failure mode: Tool Collapse">
+                Tool Collapse
+              </span>
+            </div>
+
+          </div>
+
+          <!-- Stage 2: the entire GRPO trajectory replicated mid-stage as
+               AXPO's working version. Every chip drops in from the GRPO
+               row above, then sits as a static reference so the viewer
+               can see exactly what AXPO is operating on. Labeled "AXPO"
+               (same pill as the resampling row below) because this row
+               is the first half of AXPO's two-step process: 1) take the
+               whole GRPO trajectory as the working set, 2) extract the
+               Q + think prefix and resample the rest. -->
+          <div class="ca-step ca-step-copy">
+            <div class="ca-step-label">
+              <span class="ca-method ca-method-axpo">AXPO</span>
+              <span class="ca-tag">Step 1 — Take the full GRPO trajectory</span>
+            </div>
+            <div class="ca-rollout-wrap">
+              <span class="ca-seg ca-seg-q ca-copy-step-q">
+                Question
+                <span class="ca-seg-pin ca-seg-pin-static" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><use href="#thumbtack"/></svg>
+                </span>
+              </span>
+              <span class="ca-arr ca-copy-step-q">→</span>
+              <div class="ca-rollout ca-rollout-copy">
+                <!-- Copy of GRPO's think: starts with − (matching GRPO),
+                     then flips to + at the same 70% moment as the original
+                     GRPO think and the AXPO think below. All three thinks
+                     flip in unison once the successful re-rollout lands. -->
+                <span class="ca-seg ca-seg-think ca-copy-step-0 ca-copy-think-host">
+                  think
+                  <span class="ca-seg-reward ca-seg-reward-neg ca-copy-reward ca-copy-think-flip-out"
+                        aria-label="negative reward">−</span>
+                  <span class="ca-seg-reward ca-seg-reward-pos ca-copy-think-flip-in"
+                        aria-label="positive reward retroactively assigned">+</span>
+                </span>
+                <span class="ca-arr ca-copy-step-1">→</span>
+                <span class="ca-seg ca-seg-tool ca-copy-step-1">
+                  tool call
+                  <span class="ca-seg-reward ca-seg-reward-neg ca-copy-reward"
+                        aria-label="negative reward">−</span>
+                </span>
+                <span class="ca-arr ca-copy-step-2">→</span>
+                <span class="ca-seg ca-seg-out ca-copy-step-2">
+                  output
+                  <span class="ca-seg-reward ca-seg-reward-neg ca-copy-reward"
+                        aria-label="negative reward">−</span>
+                </span>
+                <span class="ca-arr ca-copy-step-3">→</span>
+                <span class="ca-verdict ca-bad ca-copy-step-3">✗</span>
+              </div>
+              <!-- Lands at 80% — the same beat the <think> chip flips
+                   from − to +. Visually pairs the wrong-trajectory
+                   diagnosis ("tool collapse" on GRPO above) with the
+                   AXPO outcome ("tool usage recovered"). -->
+              <span class="ca-recovered-tag" aria-label="tool usage recovered">
+                Tool-usage recovered
+              </span>
+            </div>
+          </div>
+
+          <!-- ↓ Smaller "extract Question + think, resample the rest" arrow.
+               Originates above the Q+think portion of the copy row and
+               points down into the AXPO frozen-prefix row, naming the
+               actual operation. -->
+          <div class="ca-flow-arrow ca-flow-arrow-extract" aria-hidden="true">
+            <svg viewBox="0 0 24 40" preserveAspectRatio="xMidYMid meet">
+              <path d="M12 2 L12 30 M4 22 L12 32 L20 22"
+                    fill="none" stroke="currentColor" stroke-width="2.4"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="ca-flow-arrow-label">extract Question and think</span>
+          </div>
+
+          <!-- Stage 3: AXPO step 2 — frozen <think> prefix + re-rollouts.
+               The Q + think extracted from Step 1's working set become the
+               frozen prefix; the rest of the trajectory (tool_call/output/
+               verdict) is re-sampled three times from that prefix. -->
+          <div class="ca-step ca-step-axpo">
+            <div class="ca-step-label">
+              <span class="ca-tag">Step 2 — Resample tool calls from Question and think prefix</span>
+            </div>
+
+            <!-- Tree: Question chip sits outside the trunk (matches the
+                 GRPO row's layout — Question = pinned input), and `think`
+                 is the trunk that the 3 re-rollouts branch out of. -->
+            <div class="ca-branches">
+              <span class="ca-seg ca-seg-q ca-seg-borrowed">
+                Question
+                <span class="ca-seg-pin" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><use href="#thumbtack"/></svg>
+                </span>
+              </span>
+              <!-- "+" (not "→") because Question and think aren't sequential
+                   here — they're concatenated as the single frozen prefix
+                   that all 3 re-rollouts share.
+
+                   Unlike Question/think (which slide DOWN from the GRPO row
+                   above — they're literal copies of GRPO's prefix), this "+"
+                   never existed in the GRPO row, so it doesn't drop in from
+                   above. Instead it POPS UP from below at its own slot, after
+                   the two chips have landed, so the viewer reads it as a new
+                   AXPO-specific operator joining the two borrowed pieces. -->
+              <span class="ca-arr ca-arr-plus ca-axpo-plus" aria-label="plus">+</span>
+              <span class="ca-seg ca-seg-think ca-seg-borrowed ca-tree-trunk ca-axpo-think-host">
+                think
+                <span class="ca-seg-pin" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><use href="#thumbtack"/></svg>
+                </span>
+                <!-- + badge on the frozen prefix lands AFTER the reroll-3
+                     tool_call / output + badges below — first the actually
+                     taken actions get credit, then a beat later the kept
+                     thinking prefix earns its + too. This is the headline
+                     moment of the whole figure (GRPO would mark this think
+                     with −; AXPO flips it to +), so it pops with extra
+                     emphasis and the think chip itself blooms a green halo
+                     in sync. -->
+                <span class="ca-seg-reward ca-seg-reward-pos ca-axpo-think-flip"
+                      aria-label="positive reward on the kept prefix">+</span>
+              </span>
+
+              <!-- Branches: b1/b2 go to the failed re-rollouts (GRPO red, drawn
+                   first), b3 is the successful trajectory (AXPO green, thicker,
+                   drawn last to match the sequential reveal of reroll-3 ✓). -->
+              <svg class="ca-branch-svg" viewBox="0 0 60 120" aria-hidden="true" preserveAspectRatio="none">
+                <path d="M0 60 C 30 60, 30 20, 60 20"  class="ca-branch ca-b1" />
+                <path d="M0 60 L 60 60"                class="ca-branch ca-b2" />
+                <path d="M0 60 C 30 60, 30 100, 60 100" class="ca-branch ca-b3" />
+              </svg>
+
+              <!-- Re-rollouts appear ONE BY ONE. The first two fail (each gets
+                   a − reward), then reroll-3 SUDDENLY succeeds (✓) — that's the
+                   moment whose credit flows back and flips the prefix to +. -->
+              <div class="ca-rerolls">
+                <!-- Each reroll plays out chip-by-chip like the GRPO row:
+                     tool_call → output → verdict → reward. Per-chip
+                     classes (.ca-rr{N}-{slot}) drive the sequential
+                     pop-in keyframes; the outer .ca-reroll-{N} just
+                     handles the box slide-in earlier in the timeline. -->
+                <div class="ca-rollout ca-reroll ca-reroll-1">
+                  <span class="ca-seg ca-seg-tool ca-rr1-tool">
+                    tool call₁
+                    <span class="ca-seg-reward ca-seg-reward-neg ca-reroll-reward ca-reroll-reward-1"
+                          aria-label="negative reward on tool call">−</span>
+                  </span>
+                  <span class="ca-arr ca-rr1-out">→</span>
+                  <span class="ca-seg ca-seg-out ca-rr1-out">
+                    output₁
+                    <span class="ca-seg-reward ca-seg-reward-neg ca-reroll-reward ca-reroll-reward-1"
+                          aria-label="negative reward on output">−</span>
+                  </span>
+                  <span class="ca-arr ca-rr1-bad">→</span>
+                  <span class="ca-verdict ca-bad ca-rr1-bad">✗</span>
+                </div>
+                <div class="ca-rollout ca-reroll ca-reroll-2">
+                  <span class="ca-seg ca-seg-tool ca-rr2-tool">
+                    tool call₂
+                    <span class="ca-seg-reward ca-seg-reward-neg ca-reroll-reward ca-reroll-reward-2"
+                          aria-label="negative reward on tool call">−</span>
+                  </span>
+                  <span class="ca-arr ca-rr2-out">→</span>
+                  <span class="ca-seg ca-seg-out ca-rr2-out">
+                    output₂
+                    <span class="ca-seg-reward ca-seg-reward-neg ca-reroll-reward ca-reroll-reward-2"
+                          aria-label="negative reward on output">−</span>
+                  </span>
+                  <span class="ca-arr ca-rr2-bad">→</span>
+                  <span class="ca-verdict ca-bad ca-rr2-bad">✗</span>
+                </div>
+                <div class="ca-rollout ca-reroll ca-reroll-3">
+                  <span class="ca-seg ca-seg-tool ca-rr3-tool">
+                    tool call₃
+                    <!-- The successful trajectory earns + on its actually-
+                         taken actions (tool call & its output). This +
+                         pops right when ✓ lands, BEFORE the credit flow
+                         propagates back to the prefix think. -->
+                    <span class="ca-seg-reward ca-seg-reward-pos ca-reroll-reward-pos"
+                          aria-label="positive reward on tool call">+</span>
+                  </span>
+                  <span class="ca-arr ca-rr3-out">→</span>
+                  <span class="ca-seg ca-seg-out ca-rr3-out">
+                    output₃
+                    <span class="ca-seg-reward ca-seg-reward-pos ca-reroll-reward-pos"
+                          aria-label="positive reward on output">+</span>
+                  </span>
+                  <span class="ca-arr ca-rr3-good">→</span>
+                  <span class="ca-verdict ca-good ca-rr3-good">✓</span>
+                </div>
+              </div>
+              <!-- Same "Tool-usage recovered" tag as on Step 1, placed
+                   to the right of the rerolls. Both rows light up
+                   together at 80% so the message ("AXPO restored
+                   tool use") reads as one synchronized event. -->
+              <span class="ca-recovered-tag" aria-label="tool usage recovered">
+                Tool-usage recovered
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+      </figure>
+
+      <!-- Companion paper diagram: anchors the animation above to the
+           formal Fig. 2 from the paper. Animation is the visual
+           "what's happening", this is the "how it's written up". -->
+      <figure class="figure-card method-paper-figure">
+        <img class="paper-fig-img" src="assets/concept.png"
+             alt="AXPO method diagram: tool-call resampling re-rolls a frozen question + think prefix after a tool-collapsed GRPO rollout, recovering tool usage without sacrificing reward signal." />
+        <figcaption class="fig-caption">
+          <strong>AXPO at a glance.</strong> When a GRPO rollout
+          tool-collapses on the way to a wrong answer, AXPO freezes the
+          <em>Question + Think</em> prefix and re-rolls only the tail —
+          forcing the policy to actually emit a tool call. Step&nbsp;1
+          and Step&nbsp;2 above visualize the same procedure live.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ─────────────  Highlight (two hero figures)  ───────────── -->
+  <section id="highlight" class="section section-figure">
+    <div class="container">
+      <h2 class="section-title centered">Highlight</h2>
+
+      <!-- Hero figure 1: tool-use × accuracy scatter at 8B -->
+      <h3 class="subsection-title centered">(a) Only AXPO lifts both tool usage and accuracy</h3>
+      <figure class="figure-card headline-figure">
+        <img class="paper-fig-img" src="assets/figure_mainpng.png"
+             alt="Tool-usage rate vs. accuracy at the 8B scale: GRPO trades tool usage for a small accuracy gain, while AXPO lifts both, matching the 4× larger Qwen3-VL-32B Thinking baseline." />
+        <figcaption class="fig-caption">
+          From Qwen3-VL-8B Thinking, GRPO sacrifices tool usage for a small
+          accuracy gain, while <strong>AXPO</strong> improves both — matching
+          the <strong>4× larger</strong> Qwen3-VL-32B Thinking baseline. (Note that SFT is applied before training GRPO and AXPO.)
+        </figcaption>
+      </figure>
+
+      <!-- Hero figure 2: scaling figure (paper Fig. 1) -->
+      <h3 class="subsection-title centered">(b) AXPO narrows the agentic gap to a 4× larger baseline</h3>
+
+      <div class="figure-card scaling-figure">
+        <img class="paper-fig-img" src="assets/fig1_scaling.png"
+             alt="Figure 1: AXPO scaling on Pass@1 and Pass@4 across model sizes."/>
+        <p class="fig-caption">
+          Average <strong>Pass@1</strong> (left) and <strong>Pass@4</strong> (right)
+          over nine multimodal benchmarks across <em>Qwen3-VL-Thinking</em> scales.
+          At 8B, <strong>SFT + AXPO</strong> surpasses the <strong>32B Base</strong>
+          on Pass@4 while outperforming GRPO at every scale.
+          Lines: Base (no train, gray) · SFT (peach) · SFT + GRPO (red) ·
+          <strong style="color:#1f4e8a">SFT + AXPO (blue, ours)</strong>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────  Results table (interactive)  ───────────── -->
+  <section id="results" class="section section-alt">
+    <div class="container">
+      <h2 class="section-title centered">Full Results</h2>
+      <!-- Interactive controls -->
+      <div class="results-controls" id="results-controls">
+        <div class="rc-group">
+          <span class="rc-label">Model size</span>
+          <div class="rc-chips" role="radiogroup" aria-label="Model size">
+            <button type="button" class="rc-chip" data-size="2B" role="radio" aria-checked="false">2B</button>
+            <button type="button" class="rc-chip" data-size="4B" role="radio" aria-checked="false">4B</button>
+            <button type="button" class="rc-chip rc-chip-active" data-size="8B" role="radio" aria-checked="true">8B</button>
+          </div>
+        </div>
+
+        <div class="rc-group rc-group-cat">
+          <span class="rc-label">Benchmarks</span>
+          <div class="rc-chips" role="group" aria-label="Benchmark categories">
+            <button type="button"
+                    class="rc-chip rc-chip-method rc-chip-cat rc-chip-cat-reasoning rc-chip-active"
+                    data-cat="Reasoning" aria-pressed="true">
+              <span class="rc-chip-mark" aria-hidden="true"></span>Reasoning
+            </button>
+            <button type="button"
+                    class="rc-chip rc-chip-method rc-chip-cat rc-chip-cat-perception rc-chip-active"
+                    data-cat="Perception" aria-pressed="true">
+              <span class="rc-chip-mark" aria-hidden="true"></span>Perception
+            </button>
+            <button type="button"
+                    class="rc-chip rc-chip-method rc-chip-cat rc-chip-cat-search rc-chip-active"
+                    data-cat="Search" aria-pressed="true">
+              <span class="rc-chip-mark" aria-hidden="true"></span>Search
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dynamic output -->
+      <div class="results-output table-wrap scroll-x" id="results-output">
+        <!-- JS renders the filtered table here -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─────────────  Qualitative Examples: GRPO vs. AXPO  ───────────── -->
+  <section id="qualitative" class="section">
+    <div class="container">
+      <h2 class="section-title centered">Qualitative Examples — GRPO vs. AXPO</h2>
+
+      <div class="qual-keyhint qual-keyhint-desktop" aria-hidden="true">
+        <kbd class="kbd-key">←</kbd>
+        <kbd class="kbd-key">→</kbd>
+        <span class="qual-keyhint-text">Use arrow keys to flip through examples</span>
+      </div>
+      <div class="qual-keyhint qual-keyhint-mobile" aria-hidden="true">
+        <span class="qual-swipe-arrow">←</span>
+        <span class="qual-swipe-arrow">→</span>
+        <span class="qual-keyhint-text">Swipe left or right to flip through examples</span>
+      </div>
+
+      <div class="qual-carousel" id="qual-carousel" tabindex="0"
+           aria-roledescription="carousel"
+           aria-label="GRPO versus AXPO qualitative examples">
+
+        <div class="qual-track">
+
+          <!-- ── Slide 1 — Perception ──────────────────────────────── -->
+          <article class="qual-card active" data-i="0">
+            <header class="qual-head">
+              <span class="qual-tag">Perception</span>
+              <span class="qual-meta">VisualProbe-hard · GT <code>2563</code></span>
+              <span class="qual-pos">1 / 3</span>
+            </header>
+
+            <div class="qual-question">
+              <p class="qual-prompt">
+                <strong>Q.</strong> "What is the number to the left of 1000?"
+              </p>
+              <img class="qual-img" src="assets/qual/visualprobe_q.jpg"
+                   alt="A busy Hong Kong street scene with tiny telephone-number signs." />
+            </div>
+
+            <div class="qual-trajs">
+              <div class="qual-traj qual-grpo">
+                <header class="traj-head">
+                  <span class="traj-name">GRPO</span>
+                  <span class="traj-verdict bad">999 ✗</span>
+                </header>
+                <p><strong>Step 0 — think.</strong> <em>"… checking traffic
+                  lights … license plates … bus route numbers … none match
+                  1000 … maybe the question is a trick. The number to the left
+                  of 1000 in numerical order is 999 … Let me try image_zoom_in
+                  … [reasoning continues without ever emitting a tool call] …
+                  Given that this is a common math question, the answer is
+                  likely 999."</em></p>
+                <p><strong>No tool call was emitted.</strong></p>
+                <p><strong>Answer.</strong> <code>999</code></p>
+              </div>
+
+              <div class="qual-traj qual-axpo">
+                <header class="traj-head">
+                  <span class="traj-name">AXPO</span>
+                  <span class="traj-verdict ok">2563 ✓</span>
+                </header>
+                <p><strong>Step 0 — think.</strong> <em>"… checking phone
+                  numbers and license plates … under SUNBEAM THEATRE there's a
+                  section with 'Tel: 2563 1000' … Let me confirm with
+                  image_zoom_in."</em></p>
+                <p><strong>Step 0 — tool call.</strong></p>
+                <pre class="traj-code">image_zoom_in({"bbox_2d": [870, 450, 945, 517],
+               "label": "Telephone number sign", "img_idx": 0})</pre>
+                <img class="qual-img-sm" src="assets/qual/visualprobe_zoom.jpg"
+                     alt="Cropped tel sign showing 2563 1000." />
+                <p><strong>Step 1 — think.</strong> <em>"The cropped image
+                  clearly shows 'Tel: 2563 1000'. The number to the left of
+                  1000 is 2563."</em></p>
+                <p><strong>Answer.</strong> <code>2563</code></p>
+              </div>
+            </div>
+
+            <p class="qual-takeaway">
+              Both prefixes mention <code>image_zoom_in</code> as a candidate,
+              but only AXPO commits. GRPO talks itself into a numerical-order
+              guess and never invokes the tool — same pattern across all four
+              GRPO rollouts.
+            </p>
+          </article>
+
+          <!-- ── Slide 2 — Reasoning ───────────────────────────────── -->
+          <article class="qual-card" data-i="1">
+            <header class="qual-head">
+              <span class="qual-tag">Reasoning</span>
+              <span class="qual-meta">MathVision · GT <code>8</code></span>
+              <span class="qual-pos">2 / 3</span>
+            </header>
+
+            <div class="qual-question">
+              <p class="qual-prompt">
+                <strong>Q.</strong> "Three semi-circles as shown.
+                <em>ABEF</em> is a rectangle and the radius of each
+                semi-circle is 2 cm. <em>E</em> and <em>F</em> are the
+                centers of the bottom semi-circles. The area of the shaded
+                region (in cm²) is:"
+              </p>
+              <img class="qual-img" src="assets/qual/mathvision_q.jpg"
+                   alt="Three overlapping semi-circles inscribed in rectangle ABEF." />
+            </div>
+
+            <div class="qual-trajs">
+              <div class="qual-traj qual-grpo">
+                <header class="traj-head">
+                  <span class="traj-name">GRPO</span>
+                  <span class="traj-verdict bad">4 ✗</span>
+                </header>
+                <p><strong>Step 0 — think.</strong> <em>"… Top semicircle
+                  area = 2π. Each side gives a sector of π/2 minus a right
+                  triangle of area 2, so each segment is π−2. Subtracting
+                  both: 2π − 2(π−2) = 4 … so the shaded area is 4."</em></p>
+                <p><strong>No tool calls were emitted.</strong></p>
+                <p><strong>Answer.</strong> <code>4</code></p>
+              </div>
+
+              <div class="qual-traj qual-axpo">
+                <header class="traj-head">
+                  <span class="traj-name">AXPO</span>
+                  <span class="traj-verdict ok">8 ✓</span>
+                </header>
+                <p><strong>Step 0 — think.</strong> <em>"… Setting E=(0,0),
+                  F=(4,0), top semicircle has center (2,2) and radius 2.
+                  Sector minus triangle gives an overlap of π−2 …
+                  Shaded = 2π − 2(π−2) = 4 … Let me also visualise the
+                  configuration to confirm."</em></p>
+                <p><strong>Step 0 — tool call.</strong></p>
+                <pre class="traj-code">python({"code": "import matplotlib.pyplot as plt;
+import numpy as np; ax.plot(x1, np.sqrt(4-x1**2), 'b');
+ax.plot(x3, 2-np.sqrt(4-(x3-2)**2), 'r'); …"})</pre>
+                <img class="qual-img-sm" src="assets/qual/mathvision_axpo_viz.jpg"
+                     alt="Matplotlib output showing semicircle configuration." />
+                <p><strong>Step 1 — think.</strong> <em>"… the bottom
+                  semicircles curve upward (forming quarter-disks at corners
+                  E,F, total 2π), the top semicircle curves downward from AB
+                  (a half-disk of area 2π). Areas match — by area-swap the
+                  shaded region rearranges to the full rectangle ABEF:
+                  4 × 2 = 8."</em></p>
+                <p><strong>Answer.</strong> <code>8</code></p>
+              </div>
+            </div>
+
+            <p class="qual-takeaway">
+              The algebra is sound but the geometry is misread. AXPO's
+              <code>python</code> visualization makes the area-swap obvious;
+              GRPO stays in algebra and commits to the wrong sub-region (4/4
+              rollouts: 4, 4, 4, 2π).
+            </p>
+          </article>
+
+          <!-- ── Slide 3 — Search ──────────────────────────────────── -->
+          <article class="qual-card" data-i="2">
+            <header class="qual-head">
+              <span class="qual-tag">Search</span>
+              <span class="qual-meta">HR-MMSearch · GT <code>1984</code></span>
+              <span class="qual-pos">3 / 3</span>
+            </header>
+
+            <div class="qual-question">
+              <p class="qual-prompt">
+                <strong>Q.</strong> "In which year was the mayor, who will be
+                serving in August 2025, born in the city where the fashion
+                designer of this fashion show was born?"
+              </p>
+              <img class="qual-img" src="assets/qual/search_q.jpg"
+                   alt="Fashion show backdrop reading PAUL COSTELLOE." />
+            </div>
+
+            <div class="qual-trajs">
+              <div class="qual-traj qual-grpo">
+                <header class="traj-head">
+                  <span class="traj-name">GRPO</span>
+                  <span class="traj-verdict bad">1945 ✗</span>
+                </header>
+                <p><strong>Step 0 — think.</strong> <em>"Designer is Paul
+                  Costelloe; born in Dublin in 1945. Mayor of Dublin in 2025
+                  — the search results don't directly show this, but if the
+                  riddle is that the mayor is the same age as the designer,
+                  the answer would be 1945."</em></p>
+                <p><strong>Step 0 — tool call.</strong></p>
+                <pre class="traj-code">tavily-search({"query": "Paul Costelloe birthplace", …})</pre>
+                <p><strong>Tool output.</strong> <em>"… Born in Dublin,
+                  Ireland … Paul Costelloe (23 June 1945 – 21 November 2025)
+                  …"</em></p>
+                <p><strong>Step 1 — think.</strong> <em>"… search returned
+                  the designer's info but not the mayor's. I'll commit to
+                  1945 since the designer was 80 in 2025 and the question may
+                  be a riddle."</em></p>
+                <p><strong>No second-hop search.</strong></p>
+                <p><strong>Answer.</strong> <code>1945</code></p>
+              </div>
+
+              <div class="qual-traj qual-axpo">
+                <header class="traj-head">
+                  <span class="traj-name">AXPO</span>
+                  <span class="traj-verdict ok">1984 ✓</span>
+                </header>
+                <p><strong>Step 0 — think.</strong> <em>"Backdrop reads PAUL
+                  COSTELLOE; designer is Paul Costelloe. I need (i) his
+                  birthplace, (ii) the mayor of that city in August 2025,
+                  (iii) the mayor's birth year."</em></p>
+                <p><strong>Step 0 — tool call.</strong></p>
+                <pre class="traj-code">tavily-search({"query": "Paul Costelloe birthplace",
+              "max_results": 5})</pre>
+                <p><strong>Tool output.</strong> <em>"… Born in Dublin,
+                  Ireland … Paul Costelloe (23 June 1945 – 21 November 2025)
+                  …"</em></p>
+                <p><strong>Step 1 — think.</strong> <em>"Birthplace = Dublin.
+                  Now the Lord Mayor of Dublin in August 2025."</em></p>
+                <p><strong>Step 1 — tool call.</strong></p>
+                <pre class="traj-code">tavily-search({"query": "current mayor of Dublin
+              Ireland 2024", "max_results": 5})</pre>
+                <p><strong>Tool output.</strong> <em>"Ray McAdam (born 1984)
+                  … has served as Lord Mayor of Dublin since June 2025."</em></p>
+                <p><strong>Answer.</strong> <code>1984</code></p>
+              </div>
+            </div>
+
+            <p class="qual-takeaway">
+              The two-hop structure (designer → city → mayor → birth year)
+              requires a follow-up <code>tavily-search</code> after the first
+              hop. AXPO consistently issues it; all four GRPO rollouts stop
+              after the first hop and fall back to riddle-style guesses
+              (1945, 1963, 1968).
+            </p>
+          </article>
+
+        </div>
+
+        <div class="qual-controls" role="group" aria-label="Carousel navigation">
+          <button class="qual-btn qual-prev" type="button" aria-label="Previous example (Left arrow)">
+            <span aria-hidden="true">←</span>
+          </button>
+          <div class="qual-dots" role="tablist">
+            <button class="qual-dot active" type="button" data-i="0" role="tab"
+                    aria-selected="true" aria-label="Example 1: Perception"></button>
+            <button class="qual-dot" type="button" data-i="1" role="tab"
+                    aria-selected="false" aria-label="Example 2: Reasoning"></button>
+            <button class="qual-dot" type="button" data-i="2" role="tab"
+                    aria-selected="false" aria-label="Example 3: Search"></button>
+          </div>
+          <button class="qual-btn qual-next" type="button" aria-label="Next example (Right arrow)">
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────  Footer  ───────────── -->
+  <footer class="footer">
+    <div class="container">
+      <p>
+        Built on
+        <a href="https://github.com/rllm-org/rllm">rLLM</a>
+        and <code>verl</code>. Thanks to the upstream maintainers for the
+        agentic-RL foundation.
+      </p>
+      <p class="muted">
+        © 2026 · The AXPO authors · Page template inspired by
+        <a href="https://nvlabs.github.io/Sana/">NVLabs Sana</a>.
+      </p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

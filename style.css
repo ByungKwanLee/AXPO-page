@@ -1,0 +1,4129 @@
+/* =========================================================
+   AXPO Project Page — styles
+   Sana-inspired academic landing page with light/dark theme.
+   ========================================================= */
+
+:root {
+  /* Light theme */
+  --bg:            #ffffff;
+  --bg-alt:        #f6f8f5;
+  --bg-elev:       #ffffff;
+  --fg:            #0f1419;
+  --fg-soft:       #4a5260;
+  --fg-mute:       #6b7280;
+  --border:        #e4e7e4;
+  --border-strong: #d0d5cf;
+  --accent:        #76b900;          /* NVIDIA green */
+  --accent-soft:   #e9f5d6;
+  --accent-fg:     #ffffff;
+  --link:          #2563eb;
+  --pos:           #0f766e;
+  --neg:           #b91c1c;
+  --code-bg:       #f3f4f1;
+  --shadow-sm:     0 1px 2px rgba(15,20,25,.06);
+  --shadow-md:     0 10px 30px rgba(15,20,25,.08);
+  --radius:        12px;
+  --radius-lg:     18px;
+}
+
+html[data-theme="dark"] {
+  --bg:            #0b0f0d;
+  --bg-alt:        #11171a;
+  --bg-elev:       #131a1e;
+  --fg:            #e8edec;
+  --fg-soft:       #c2c9c7;
+  --fg-mute:       #8a9491;
+  --border:        #1f2a2e;
+  --border-strong: #2c3a3f;
+  --accent:        #76b900;
+  --accent-soft:   #1d2a14;
+  --accent-fg:     #0b0f0d;
+  --link:          #93c5fd;
+  --pos:           #5eead4;
+  --neg:           #fda4af;
+  --code-bg:       #0f1517;
+  --shadow-sm:     0 1px 2px rgba(0,0,0,.4);
+  --shadow-md:     0 12px 36px rgba(0,0,0,.45);
+}
+
+/* =========================================================
+   Base
+   ========================================================= */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+a:hover { opacity: 0.75; }
+
+code, pre {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+code {
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+em { font-style: italic; color: var(--fg); }
+strong { color: var(--fg); }
+
+/* =========================================================
+   Container helpers
+   ========================================================= */
+.container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+.container.narrow {
+  max-width: 820px;
+}
+
+/* =========================================================
+   Top navigation
+   ========================================================= */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+.brand:hover { opacity: 1; }
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+}
+.brand-mark svg { display: block; }
+
+.nvidia-logo {
+  height: 26px;
+  width: auto;
+  color: var(--fg);
+  transition: opacity 0.2s ease;
+}
+.brand:hover .nvidia-logo { opacity: 0.85; }
+@media (max-width: 640px) {
+  .nvidia-logo { height: 22px; }
+  .nav-inner   { padding: 12px 16px; gap: 12px; }
+  .brand       { gap: 10px; font-size: 0.95rem; }
+}
+
+/* ---- Pill-style segmented section nav ----
+   Five tabs (TL;DR / Method / Highlight / Results / Qualitative) sit
+   inside a single rounded pill. The currently-visible section gets
+   a filled "active" chip; hover + focus give subtle feedback. JS
+   (`script.js`) drives the active state via an IntersectionObserver
+   scrollspy on each anchored section. */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+}
+.nav-links a {
+  color: var(--fg-soft);
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 7px 14px;
+  border-radius: 999px;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+.nav-links a:hover {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--fg) 7%, transparent);
+  opacity: 1;
+}
+.nav-links a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.nav-links a.active {
+  color: var(--accent-fg);
+  background: var(--accent);
+}
+.nav-links a.active:hover {
+  /* Keep the active chip readable on hover instead of bleaching it. */
+  background: color-mix(in srgb, var(--accent) 88%, #000);
+  color: var(--accent-fg);
+}
+
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 40px; height: 40px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg);
+  border-radius: 10px;
+  cursor: pointer;
+  /* Suppress the gray flash iOS / Android draw on the first tap so
+     the icon stays visually crisp on mobile. */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.theme-toggle:active {
+  transform: scale(0.94);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.theme-toggle .icon-sun  { display: none; }
+.theme-toggle .icon-moon { display: block; }
+html[data-theme="dark"] .theme-toggle .icon-sun  { display: block; }
+html[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+
+/* Bigger touch target on mobile — Apple HIG / Material both recommend
+   a 44px minimum hit area, and the toggle is the primary header
+   affordance once `.nav-links` is hidden. Also make the border
+   slightly stronger so it reads at a glance on a phone screen. */
+@media (max-width: 720px) {
+  .theme-toggle {
+    width: 44px; height: 44px;
+    border-color: var(--border-strong);
+    border-radius: 12px;
+  }
+  .theme-toggle .icon-sun,
+  .theme-toggle .icon-moon { width: 22px; height: 22px; }
+}
+
+/* Compact pill on smaller laptops / large phones still showing the nav. */
+@media (max-width: 900px) {
+  .nav-links { gap: 1px; padding: 3px; }
+  .nav-links a { padding: 6px 10px; font-size: 0.8rem; }
+}
+@media (max-width: 720px) {
+  .nav-links { display: none; }
+}
+
+/* =========================================================
+   Hero
+   ========================================================= */
+.hero {
+  position: relative;
+  padding: 88px 0 56px;
+  text-align: center;
+  overflow: hidden;
+}
+.hero-glow {
+  position: absolute;
+  inset: -20% 20% auto 20%;
+  height: 520px;
+  background:
+    radial-gradient(closest-side, color-mix(in srgb, var(--accent) 35%, transparent), transparent 70%);
+  filter: blur(60px);
+  z-index: -1;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.title {
+  position: relative;
+  display: inline-block;
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  margin: 22px 0 8px;
+  color: var(--fg);
+  isolation: isolate;
+}
+.title::before {
+  content: "";
+  position: absolute;
+  inset: -40% -60%;
+  z-index: -1;
+  background:
+    radial-gradient(80% 55% at 50% 50%,
+      color-mix(in srgb, var(--accent) 10%, transparent) 0%,
+      color-mix(in srgb, var(--accent) 5%, transparent) 40%,
+      color-mix(in srgb, var(--accent) 2%, transparent) 65%,
+      transparent 85%);
+  filter: blur(52px);
+  opacity: 0.75;
+  pointer-events: none;
+  animation: title-ambient 7s ease-in-out infinite;
+}
+@keyframes title-ambient {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.03);
+  }
+}
+.title-accent {
+  color: var(--accent);
+  font-style: italic;
+}
+@media (prefers-reduced-motion: reduce) {
+  .title::before { animation: none; }
+}
+.subtitle {
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  font-weight: 500;
+  color: var(--fg-soft);
+  margin: 0;
+}
+
+.tagline {
+  max-width: 720px;
+  margin: 18px auto 0;
+  color: var(--fg-soft);
+  font-size: 1.05rem;
+}
+
+/* Authors */
+.authors {
+  margin: 28px auto 6px;
+  max-width: 980px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 20px;
+  font-size: 1.13rem;
+  color: var(--fg);
+}
+.author .auth-link {
+  color: var(--fg);
+  font-weight: 500;
+}
+.author .auth-link:hover { color: var(--accent); opacity: 1; }
+.authors sup {
+  color: var(--fg-mute);
+  font-size: 0.78em;
+  margin-left: 2px;
+}
+
+.affiliations {
+  margin: 12px auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 22px;
+  color: var(--fg-soft);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+.affiliations.small {
+  font-size: 1.0rem;
+  font-weight: 400;
+  color: var(--fg-soft);
+  opacity: 1;
+}
+
+/* Actions */
+.actions {
+  margin-top: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  /* Top-align so the small "Coming soon!" caption under Code/Models
+     hangs below the row without pushing those two buttons down to
+     match a taller stack height. */
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Wrapper used for buttons that need a small caption (e.g. "Coming soon!")
+   beneath them. Keeps the button itself the same shape/size as the
+   other .btn siblings, then drops the caption directly under it. */
+.btn-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+/* "Coming soon to public" caption — eye-catching but not screaming:
+   1) A bright metallic stripe sweeps across the text (background-clip:
+      text + animated background-position). NVIDIA green base so it
+      ties into the page accent.
+   2) Twin ✨ sparkles on either side twinkle in/out on their own beat,
+      so the whole label feels alive instead of just a static line.
+   3) A soft text-shadow gives it a subtle green glow that pulses
+      with the shimmer. */
+.btn-coming {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  /* Wide gradient: muted accent → bright white highlight → muted
+     accent again, repeated. Scrolled via background-position so the
+     bright stripe sweeps left→right across the glyphs. */
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--accent) 70%, var(--fg-mute)) 0%,
+    color-mix(in srgb, var(--accent) 70%, var(--fg-mute)) 35%,
+    #ffffff 50%,
+    color-mix(in srgb, var(--accent) 70%, var(--fg-mute)) 65%,
+    color-mix(in srgb, var(--accent) 70%, var(--fg-mute)) 100%
+  );
+  background-size: 220% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  text-shadow: 0 0 6px color-mix(in srgb, var(--accent) 35%, transparent);
+  animation: btn-coming-shimmer 2.2s ease-in-out infinite,
+             btn-coming-glow    2.2s ease-in-out infinite;
+}
+.btn-coming::before,
+.btn-coming::after {
+  content: "✨";
+  font-size: 0.85em;
+  /* Sparkles aren't part of the gradient text — keep them as solid
+     accent glyphs so they read as actual stars rather than washed-out. */
+  -webkit-text-fill-color: initial;
+          color: var(--accent);
+  text-shadow: 0 0 5px color-mix(in srgb, var(--accent) 60%, transparent);
+  animation: btn-coming-twinkle 1.6s ease-in-out infinite;
+}
+.btn-coming::after {
+  /* Right sparkle blinks on the opposite half of the cycle so the
+     pair feels like a back-and-forth wink, not in unison. */
+  animation-delay: 0.8s;
+}
+
+@keyframes btn-coming-shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+@keyframes btn-coming-glow {
+  0%, 100% { text-shadow: 0 0 4px  color-mix(in srgb, var(--accent) 25%, transparent); }
+  50%      { text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 55%, transparent); }
+}
+@keyframes btn-coming-twinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.85) rotate(0deg); }
+  50%      { opacity: 1;    transform: scale(1.15) rotate(15deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-coming,
+  .btn-coming::before,
+  .btn-coming::after {
+    animation: none;
+  }
+  .btn-coming {
+    background: none;
+    -webkit-text-fill-color: initial;
+            color: var(--accent);
+  }
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-elev);
+  color: var(--fg);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease,
+              color 0.15s ease, border-color 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+.btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  color: var(--accent);
+  opacity: 1;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+.btn-primary:hover {
+  background: color-mix(in srgb, var(--accent) 85%, black);
+  color: var(--accent-fg);
+}
+
+/* Themed action buttons — each link in the hero gets its own color so
+   Paper / Code / Models are visually distinct at a glance. Pastel fill
+   inside, strong colored border + text outside, so the chips read as
+   "outlined" rather than heavy filled CTAs. */
+.btn-paper  { --btn-c: var(--accent); }   /* NVIDIA green */
+.btn-code   { --btn-c: #4f6dde; }         /* indigo / GitLab-ish blue */
+.btn-models { --btn-c: #d97706; }         /* amber-600, nods to the 🤗 emoji */
+
+.btn-paper,
+.btn-code,
+.btn-models {
+  background: color-mix(in srgb, var(--btn-c) 14%, transparent);
+  color: var(--btn-c);
+  border: 1.5px solid var(--btn-c);
+  box-shadow: 0 2px 10px -4px color-mix(in srgb, var(--btn-c) 35%, transparent);
+}
+.btn-paper:hover,
+.btn-code:hover,
+.btn-models:hover {
+  background: color-mix(in srgb, var(--btn-c) 22%, transparent);
+  border-color: var(--btn-c);
+  color: var(--btn-c);
+  box-shadow: 0 4px 16px -4px color-mix(in srgb, var(--btn-c) 50%, transparent);
+}
+/* The .soon label sits on the pastel button fill. Earlier iterations
+   used a pale tinted pill that all but vanished into the host button —
+   now we render it as a SOLID, full-strength pill: deep saturated
+   background in the button's accent color with white text on top, so
+   it reads instantly without any squinting in either theme. */
+.btn-paper .soon,
+.btn-code .soon,
+.btn-models .soon {
+  color: #ffffff;
+  background: color-mix(in srgb, var(--btn-c) 88%, #000000);
+  border: 1px solid color-mix(in srgb, var(--btn-c) 95%, #000000);
+  padding: 3px 11px;
+  border-radius: 999px;
+  font-size: 0.82em;
+  font-weight: 800;
+  letter-spacing: 0.015em;
+  margin-left: 6px;
+  vertical-align: 1px;
+  white-space: nowrap;
+  /* Subtle drop-shadow so the pill visibly lifts off the host button
+     instead of looking like a pasted-on label. */
+  box-shadow: 0 1px 3px -1px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+.btn-disabled {
+  cursor: default;
+  opacity: 0.7;
+  color: var(--fg-mute);
+}
+.btn-disabled:hover {
+  transform: none;
+  border-color: var(--border-strong);
+  color: var(--fg-mute);
+}
+.soon {
+  font-size: 0.78em;
+  font-style: normal;
+  color: var(--fg-mute);
+  font-weight: 500;
+  margin-left: 2px;
+}
+.hf-emoji { font-size: 1.1em; }
+
+/* =========================================================
+   Metrics band
+   ========================================================= */
+.metrics-band {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 36px 0;
+  background: var(--bg-alt);
+}
+.metrics-band .container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  text-align: center;
+}
+@media (max-width: 820px) {
+  .metrics-band .container { grid-template-columns: repeat(2, 1fr); }
+}
+.metric-value {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.metric-value .unit {
+  font-size: 0.55em;
+  color: var(--fg-soft);
+  margin-left: 2px;
+  font-weight: 600;
+}
+.metric-label {
+  margin-top: 8px;
+  font-size: 0.88rem;
+  color: var(--fg-soft);
+  line-height: 1.4;
+}
+
+/* =========================================================
+   Generic section
+   ========================================================= */
+.section {
+  padding: 80px 0;
+}
+.section-alt {
+  background: var(--bg-alt);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.section-title {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0 0 22px;
+  color: var(--fg);
+}
+.section-title.centered { text-align: center; }
+/* Subheading inside a section (e.g., the two figure headlines under
+   "Highlight"). Smaller and slightly muted relative to .section-title
+   so the section's h2 still owns the hierarchy. */
+.subsection-title {
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 36px 0 18px;
+  color: var(--fg);
+}
+.subsection-title.centered { text-align: center; }
+/* First subsection-title in a section should hug the section title
+   above it instead of pushing far down. */
+.section-title + .subsection-title,
+.section-title.centered + .subsection-title { margin-top: 8px; }
+.section-lead {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto 36px;
+  color: var(--fg-soft);
+  font-size: 1.05rem;
+}
+
+/* TL;DR headline lines — one says "this is the problem", the other says
+   "this is our fix". Color-coded (GRPO red / AXPO green) and bumped up
+   in size so the reader's eye lands on them before the body copy. The
+   left-side colored bar acts as a quick visual tag. */
+.tldr-head {
+  display: inline-block;
+  font-size: 1.18rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  padding: 4px 0 4px 12px;
+  margin-bottom: 4px;
+  border-left: 4px solid currentColor;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, currentColor 12%, transparent) 0,
+    transparent 80%
+  );
+}
+.tldr-problem  { color: var(--col-grpo); }
+.tldr-solution { color: var(--col-axpo); }
+
+/* TL;DR is structured as: heading → bar-chart visual → two
+   claim+explanation blocks. Each block pairs a colored headline
+   directly with the paragraph that unpacks it, so the eye reads
+   "problem → why it happens", then "solution → how it works". */
+.tldr-anim {
+  /* Sits directly under the TL;DR heading as at-a-glance evidence.
+     Generous bottom margin (paired with .tldr-body's top margin)
+     gives the bars real breathing room before the first headline,
+     so the figure doesn't feel crammed into the body text. */
+  margin: 8px auto 28px;
+}
+.tldr-body {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;          /* generous gap BETWEEN the two claim blocks */
+  margin-top: 28px;   /* gap from the bar-chart figure above */
+}
+.tldr-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;          /* tight-but-not-cramped gap WITHIN a claim+explanation pair */
+}
+.tldr-claim {
+  margin: 0;
+}
+.tldr-body p {
+  margin: 0;
+}
+
+/* =========================================================
+   Paper-figure card (Fig. 1 scaling, Fig. 2 concept, Fig. 3 analysis)
+   ========================================================= */
+.section-figure { padding-top: 56px; padding-bottom: 56px; }
+
+.figure-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(.2,.7,.2,1),
+              box-shadow 0.35s cubic-bezier(.2,.7,.2,1),
+              border-color 0.35s ease;
+}
+.figure-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  box-shadow:
+    0 18px 40px -18px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 8px 20px -10px rgba(0, 0, 0, 0.35);
+}
+.paper-fig {
+  color: var(--fg-soft);
+  min-height: 100px;
+}
+.paper-fig svg { display: block; max-width: 100%; height: auto; }
+
+.paper-fig-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  transition: transform 0.5s cubic-bezier(.2,.7,.2,1),
+              filter 0.4s ease;
+  will-change: transform;
+}
+.figure-card:hover .paper-fig-img {
+  transform: scale(1.025);
+  filter: saturate(1.08) contrast(1.03);
+}
+html[data-theme="dark"] .paper-fig-img {
+  background: #ffffff;
+  padding: 14px;
+}
+
+.img-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: 10px;
+  padding: 32px;
+  text-align: center;
+  color: var(--fg-mute);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.img-placeholder code {
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.88em;
+  color: var(--fg-soft);
+}
+
+.fig-caption {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--fg-mute);
+  line-height: 1.5;
+}
+
+/* (.concept-figure styles removed — the standalone Fig.2 concept
+   image was retired in favor of the "Method" section, which now
+   contains only the animated AXPO mechanism figure.) */
+
+/* Headline scatter plot (Main Results) — square-ish, centered */
+.headline-figure {
+  max-width: 720px;
+  margin: 0 auto 36px;
+}
+/* Method section's companion paper diagram — sits below the AXPO
+   mechanism animation as the formal Fig. 2 reference. Wider than a
+   headline figure since the diagram itself is landscape, and given
+   a left-aligned caption to match the rest of the page's figure
+   captions (`.scaling-figure`, `.anim-bars-figure`). */
+.method-paper-figure {
+  max-width: 980px;
+  margin: 28px auto 0;
+}
+.method-paper-figure .fig-caption {
+  margin: 16px auto 0;
+  max-width: 72ch;
+  text-align: left;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
+.method-paper-figure .fig-caption strong { color: var(--fg); }
+.method-paper-figure .fig-caption em {
+  color: var(--fg);
+  font-style: normal;
+  font-weight: 600;
+}
+.headline-figure .fig-caption {
+  margin: 16px auto 0;
+  max-width: 62ch;
+  text-align: left;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
+.headline-figure .fig-caption strong {
+  color: var(--fg);
+}
+/* Scaling figure (paper Fig. 1) keeps its full figure-card width but
+   uses a left-aligned, paragraph-style caption — the caption is doing
+   the work of a section lead, so it reads better left-aligned with a
+   capped measure than centered. */
+.scaling-figure .fig-caption {
+  margin: 16px auto 0;
+  max-width: 72ch;
+  text-align: left;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
+.scaling-figure .fig-caption strong { color: var(--fg); }
+.concept-fig {
+  width: 100%;
+  height: auto;
+  min-width: 760px;
+  display: block;
+  color: var(--fg-soft);
+}
+.concept-fig .fig-title {
+  font: 600 15px "Inter", sans-serif;
+  fill: var(--fg);
+}
+.concept-fig .fig-sub {
+  font: 400 12px "Inter", sans-serif;
+  fill: var(--fg-mute);
+}
+.concept-fig .fig-foot {
+  font: 500 12px "Inter", sans-serif;
+  fill: var(--fg-soft);
+}
+.concept-fig .fig-label {
+  font: 500 11px "Inter", sans-serif;
+  fill: var(--fg-mute);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.concept-fig .fig-tag {
+  font: 500 11px "Inter", sans-serif;
+  fill: var(--fg-mute);
+}
+.concept-fig .fig-tag.tag-tool {
+  font-weight: 600;
+  fill: var(--fg-soft);
+}
+.concept-fig .panel-arrow {
+  color: var(--fg-soft);
+}
+.concept-fig .fig-legend {
+  font: 500 12px "Inter", sans-serif;
+  fill: var(--fg-soft);
+}
+.concept-fig .fig-mark {
+  font: 700 16px "Inter", sans-serif;
+}
+.concept-fig .fig-mark.fail { fill: #ef4444; }
+.concept-fig .fig-mark.ok   { fill: #22c55e; }
+
+/* =========================================================
+   Method cards
+   ========================================================= */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+@media (max-width: 820px) {
+  .grid-3 { grid-template-columns: 1fr; }
+}
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  position: relative;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+.card-num {
+  display: grid;
+  place-items: center;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+html[data-theme="dark"] .card-num {
+  background: color-mix(in srgb, var(--accent) 25%, var(--bg-elev));
+  color: #c5e88a;
+}
+.card h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.card p {
+  margin: 0;
+  color: var(--fg-soft);
+  font-size: 0.95rem;
+}
+
+.callout {
+  margin-top: 26px;
+  padding: 20px 24px;
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  color: var(--fg);
+  font-size: 1rem;
+}
+html[data-theme="dark"] .callout { color: var(--fg); }
+
+/* =========================================================
+   Results table
+   ========================================================= */
+.table-wrap {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.98rem;
+}
+.results-table th,
+.results-table td {
+  padding: 14px 18px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.results-table th {
+  background: var(--bg-alt);
+  font-weight: 600;
+  color: var(--fg-soft);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.results-table tbody tr:last-child td { border-bottom: none; }
+.results-table .row-highlight {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.results-table .pos {
+  color: var(--pos);
+  font-weight: 700;
+}
+.footnote {
+  margin-top: 18px;
+  font-size: 0.9rem;
+  color: var(--fg-mute);
+  text-align: center;
+}
+.delta-pos-sample {
+  color: #15803d;
+  font-weight: 700;
+}
+.delta-neg-sample {
+  color: #b91c1c;
+  font-weight: 700;
+}
+html[data-theme="dark"] .delta-pos-sample { color: #4ade80; }
+html[data-theme="dark"] .delta-neg-sample { color: #f87171; }
+
+/* ---- Wide full table (paper Table 1 in HTML) ---- */
+.table-wrap.scroll-x { overflow-x: auto; overflow-y: hidden; }
+
+.results-table-full {
+  width: 100%;
+  min-width: 880px;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+.results-table-full th,
+.results-table-full td {
+  padding: 6px 8px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.results-table-full thead th {
+  background: var(--bg-alt);
+  font-weight: 600;
+  color: var(--fg-soft);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  text-transform: none;
+}
+.results-table-full thead tr.group-header th {
+  font-weight: 700;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border-strong);
+  padding-top: 10px;
+  padding-bottom: 4px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+.results-table-full tbody tr.scale-head td {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  font-weight: 700;
+  color: var(--accent);
+  text-align: left;
+  padding: 9px 14px;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  border-bottom: 1px solid var(--border-strong);
+}
+.results-table-full tbody tr.delta-row td {
+  font-style: italic;
+  color: var(--fg-mute);
+  font-size: 0.74rem;
+  border-bottom: 2px solid var(--border-strong);
+}
+/* Inline hint after the Δ symbol — small, roman, mono, slightly dim
+   so the formula doesn't compete with the Δ glyph itself. */
+.results-table-full tbody tr.delta-row td .delta-hint {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.72rem;
+  color: var(--fg-mute);
+  font-family: "JetBrains Mono", monospace;
+  margin-left: 4px;
+  letter-spacing: 0.01em;
+}
+.results-table-full tbody tr.axpo-row {
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+.results-table-full td.method {
+  text-align: left;
+  font-weight: 600;
+  padding-left: 14px;
+  color: var(--fg);
+}
+.results-table-full td.method-axpo {
+  text-align: left;
+  font-weight: 700;
+  padding-left: 14px;
+  color: var(--accent);
+}
+.results-table-full td.best  { font-weight: 700; color: var(--fg); }
+.results-table-full td.second { text-decoration: underline; text-underline-offset: 2px; }
+.results-table-full td.pos   { color: var(--pos); font-weight: 700; }
+.results-table-full td.neg   { color: var(--neg); font-weight: 700; }
+.results-table-full td.col-group { border-left: 1px solid var(--border); }
+
+/* Group dividers (Reasoning | Perception | Search) ----------
+   Class-based so the dynamic table can drop / add whole groups
+   without breaking nth-child math. JS tags the first cell of each
+   group with `.group-start` in both header and body. */
+.results-table-full thead .group-start,
+.results-table-full tbody tr:not(.scale-head) td.group-start {
+  border-left: 2px solid var(--border-strong);
+}
+
+/* Subtle group tints to reinforce the grouping --------------- */
+.results-table-full tbody tr:not(.scale-head):not(.axpo-row):not(.delta-row) td.cat-perception {
+  background: color-mix(in srgb, var(--fg) 3%, transparent);
+}
+.results-table-full tbody tr:not(.scale-head):not(.axpo-row):not(.delta-row) td.cat-search {
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+}
+
+/* Color-code the group header labels ------------------------- */
+.results-table-full thead .grp-reasoning  { color: #4f6dde; }
+.results-table-full thead .grp-perception { color: #b78a2e; }
+.results-table-full thead .grp-search     { color: #c2497a; }
+html[data-theme="dark"] .results-table-full thead .grp-reasoning  { color: #8fa6ff; }
+html[data-theme="dark"] .results-table-full thead .grp-perception { color: #e5b85a; }
+html[data-theme="dark"] .results-table-full thead .grp-search     { color: #f08bb5; }
+
+/* Make the Avg. column pop ----------------------------------
+   Class-based: JS tags the Avg header with `.avg-header` and every
+   Avg cell with `.avg-cell`. The Avg column always pops regardless
+   of which categories are currently visible. */
+.results-table-full thead th.avg-header {
+  border-left: 2px solid color-mix(in srgb, var(--accent) 45%, var(--border-strong));
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--fg);
+}
+.results-table-full tbody td.avg-cell {
+  border-left: 2px solid color-mix(in srgb, var(--accent) 45%, var(--border-strong));
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  font-weight: 700;
+  font-size: 1.02rem;
+  color: var(--fg);
+}
+.results-table-full tbody tr.axpo-row td.avg-cell {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 1.08rem;
+}
+.results-table-full tbody tr.delta-row td.avg-cell {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  font-size: 0.9rem;
+}
+
+.results-table-full tbody tr.delta-row td.pos {
+  color: #15803d;
+  font-weight: 800;
+  font-style: normal;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+}
+.results-table-full tbody tr.delta-row td.neg {
+  color: #b91c1c;
+  font-weight: 800;
+  font-style: normal;
+  font-size: 0.82rem;
+  letter-spacing: 0.01em;
+}
+html[data-theme="dark"] .results-table-full tbody tr.delta-row td.pos {
+  color: #4ade80;
+}
+html[data-theme="dark"] .results-table-full tbody tr.delta-row td.neg {
+  color: #f87171;
+}
+
+/* ---- Interactive Results: control chips ---------------------------- */
+.results-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 18px;
+  margin: 8px 0 22px;
+  background: color-mix(in srgb, var(--accent) 4%, var(--bg-alt));
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
+  border-radius: 14px;
+}
+.rc-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.rc-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-mute);
+}
+.rc-chips {
+  display: inline-flex;
+  gap: 6px;
+  padding: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.rc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--fg-soft);
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 120ms ease,
+    box-shadow 160ms ease;
+  font-variant-numeric: tabular-nums;
+}
+.rc-chip:hover {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+}
+.rc-chip:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 2px;
+}
+.rc-chip-active {
+  color: #fff;
+  background: var(--accent);
+  box-shadow: 0 2px 10px -2px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.rc-chip-active:hover {
+  background: var(--accent);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Method chips have a checkbox-style mark */
+.rc-chip-method {
+  padding-left: 10px;
+}
+.rc-chip-mark {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1.5px solid currentColor;
+  background: transparent;
+  position: relative;
+  flex: 0 0 14px;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.rc-chip-active .rc-chip-mark {
+  background: #fff;
+  border-color: #fff;
+}
+.rc-chip-active .rc-chip-mark::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-left: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  transform: rotate(-45deg) translate(1px, -1px);
+  border-bottom-left-radius: 1px;
+}
+
+/* Category chips — each tinted to match its column-group color so
+   the chips literally look like the table headers they control. */
+.rc-chip-cat-reasoning.rc-chip-active {
+  background: #4f6dde;
+  box-shadow: 0 2px 10px -2px color-mix(in srgb, #4f6dde 55%, transparent);
+}
+.rc-chip-cat-reasoning.rc-chip-active .rc-chip-mark::after {
+  border-left-color: #4f6dde;
+  border-bottom-color: #4f6dde;
+}
+.rc-chip-cat-perception.rc-chip-active {
+  background: #b78a2e;
+  box-shadow: 0 2px 10px -2px color-mix(in srgb, #b78a2e 55%, transparent);
+}
+.rc-chip-cat-perception.rc-chip-active .rc-chip-mark::after {
+  border-left-color: #b78a2e;
+  border-bottom-color: #b78a2e;
+}
+.rc-chip-cat-search.rc-chip-active {
+  background: #c2497a;
+  box-shadow: 0 2px 10px -2px color-mix(in srgb, #c2497a 55%, transparent);
+}
+.rc-chip-cat-search.rc-chip-active .rc-chip-mark::after {
+  border-left-color: #c2497a;
+  border-bottom-color: #c2497a;
+}
+
+/* Even inactive, give each category chip a tiny color dot via the
+   mark border so the user can still associate chip↔group. */
+.rc-chip-cat:not(.rc-chip-active) .rc-chip-mark { border-color: currentColor; }
+.rc-chip-cat-reasoning:not(.rc-chip-active)  { color: color-mix(in srgb, #4f6dde 70%, var(--fg-soft)); }
+.rc-chip-cat-perception:not(.rc-chip-active) { color: color-mix(in srgb, #b78a2e 70%, var(--fg-soft)); }
+.rc-chip-cat-search:not(.rc-chip-active)     { color: color-mix(in srgb, #c2497a 70%, var(--fg-soft)); }
+
+/* Dynamic output container — gentle fade on re-render */
+.results-output { min-height: 220px; }
+
+/* 32B reference row pinned at the bottom of every selection.
+   The row carries its own dashed separator on top so we don't need
+   a standalone scale-head divider row; the method cell shows the
+   "Reference" pill inline next to the full model name. */
+.results-table-full tbody tr.ref-row td {
+  color: var(--fg-soft);
+  font-variant-numeric: tabular-nums;
+  border-top: 2px dashed color-mix(in srgb, var(--fg) 28%, transparent);
+  background: color-mix(in srgb, var(--fg) 4%, transparent);
+}
+.results-table-full tbody tr.ref-row td.method {
+  color: var(--fg);
+  font-weight: 600;
+}
+.results-table-full tbody tr.ref-row td.avg-cell {
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  color: var(--fg);
+  font-weight: 700;
+}
+.results-fade-in { animation: resultsFadeIn 280ms ease-out both; }
+@keyframes resultsFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .results-fade-in { animation: none; }
+  .rc-chip-active:hover { transform: none; }
+}
+
+/* Mobile tweaks for the controls */
+@media (max-width: 640px) {
+  .results-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px;
+  }
+  .rc-group {
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .rc-chip {
+    padding: 8px 12px;
+    font-size: 0.88rem;
+  }
+  .rc-method-note {
+    text-align: center;
+  }
+}
+
+/* =========================================================
+   Benchmarks
+   ========================================================= */
+/* =========================================================
+   Qualitative Examples (GRPO vs. AXPO) — keyboard carousel
+   ========================================================= */
+
+/* Prominent keyboard navigation hint — centered pill above carousel */
+.qual-keyhint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  margin: 22px auto 0;
+  padding: 10px 18px 10px 14px;
+  background: var(--accent-soft);
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--fg);
+  animation: qualKeyHintPulse 2.4s ease-out 1.2s 2;
+}
+html[data-theme="dark"] .qual-keyhint {
+  background: rgba(118, 185, 0, 0.12);
+}
+.qual-keyhint-text {
+  letter-spacing: 0.01em;
+}
+
+@keyframes qualKeyHintPulse {
+  0%   { box-shadow: 0 0 0 0    rgba(118, 185, 0, 0.55); }
+  60%  { box-shadow: 0 0 0 14px rgba(118, 185, 0, 0); }
+  100% { box-shadow: 0 0 0 0    rgba(118, 185, 0, 0); }
+}
+
+/* Big inline keycaps inside the hint */
+.qual-keyhint .kbd-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--fg);
+  background: var(--bg-elev);
+  border: 1.5px solid var(--border-strong);
+  border-bottom-width: 3px;
+  border-radius: 7px;
+  box-shadow: var(--shadow-sm);
+}
+
+.qual-carousel {
+  margin: 28px auto 0;
+  outline: none;
+  /* Let horizontal swipes belong to the carousel while vertical
+     gestures still scroll the page normally. */
+  touch-action: pan-y;
+}
+.qual-carousel:focus-visible {
+  outline: 2px dashed var(--accent);
+  outline-offset: 8px;
+  border-radius: var(--radius-lg);
+}
+
+.qual-track {
+  position: relative;
+}
+
+.qual-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px 24px;
+  box-shadow: var(--shadow-sm);
+  display: none;
+  animation: qualFadeIn 220ms ease-out;
+  /* The active card is hint-driven by JS during a swipe (translateX +
+     opacity) — keep transitions cheap so finger-drag feels live. */
+  will-change: transform, opacity;
+}
+.qual-card.active {
+  display: block;
+}
+/* While the finger is actively dragging, suppress the entry animation
+   so the inline transform from JS isn't overridden. */
+.qual-card.qual-dragging {
+  animation: none !important;
+  transition: none !important;
+}
+/* Applied for one frame after touchend (when the swipe doesn't pass
+   threshold) so the card eases back to rest instead of snapping. */
+.qual-card.qual-releasing {
+  animation: none !important;
+  transition: transform 200ms ease-out, opacity 200ms ease-out;
+}
+@keyframes qualFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes qualSlideInFromRight {
+  from { opacity: 0; transform: translateX(36px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes qualSlideInFromLeft {
+  from { opacity: 0; transform: translateX(-36px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+/* Direction-aware entry: JS adds `qual-enter-next` when advancing
+   forward (next / right-swipe), `qual-enter-prev` when going back. */
+.qual-card.qual-enter-next.active {
+  animation: qualSlideInFromRight 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.qual-card.qual-enter-prev.active {
+  animation: qualSlideInFromLeft 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.qual-pos {
+  margin-left: auto;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--fg-mute);
+  letter-spacing: 0.05em;
+}
+
+/* Carousel controls */
+.qual-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 20px;
+}
+.qual-btn {
+  appearance: none;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+.qual-btn:hover {
+  background: var(--bg-alt);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+.qual-btn:active {
+  transform: translateY(0);
+}
+.qual-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.qual-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.qual-dot {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-alt);
+  cursor: pointer;
+  padding: 0;
+  transition: background 120ms ease, transform 120ms ease, border-color 120ms ease;
+}
+.qual-dot:hover {
+  background: var(--border-strong);
+}
+.qual-dot.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1.15);
+}
+.qual-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Tiny <kbd> styling for the keyboard hint in section-lead */
+.section-lead kbd {
+  display: inline-block;
+  padding: 1px 7px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.85em;
+  background: var(--code-bg);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  color: var(--fg);
+  line-height: 1.4;
+}
+
+.qual-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.qual-tag {
+  display: inline-block;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+html[data-theme="dark"] .qual-tag {
+  color: #a8e063;
+}
+.qual-meta {
+  font-size: 0.92rem;
+  color: var(--fg-mute);
+}
+.qual-meta code {
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.92em;
+  color: var(--fg-soft);
+}
+
+.qual-question {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 18px;
+  align-items: center;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin-bottom: 22px;
+}
+.qual-prompt {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
+.qual-prompt strong { color: var(--fg); }
+.qual-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 260px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 6px;
+  transition: transform 0.4s cubic-bezier(.2,.7,.2,1),
+              box-shadow 0.4s ease;
+  will-change: transform;
+}
+.qual-img:hover {
+  transform: scale(1.03);
+  box-shadow:
+    0 12px 28px -14px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 4px 12px -6px rgba(0, 0, 0, 0.3);
+}
+.qual-img-sm {
+  display: block;
+  margin: 10px 0;
+  max-width: 280px;
+  max-height: 180px;
+  height: auto;
+  width: auto;
+  border-radius: 6px;
+  background: #ffffff;
+  padding: 4px;
+  transition: transform 0.4s cubic-bezier(.2,.7,.2,1),
+              box-shadow 0.4s ease;
+  will-change: transform;
+}
+.qual-img-sm:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 10px 22px -12px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 3px 10px -5px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 720px) {
+  .qual-question { grid-template-columns: 1fr; }
+}
+
+.qual-trajs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+@media (max-width: 860px) {
+  .qual-trajs { grid-template-columns: 1fr; }
+}
+
+.qual-traj {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  background: var(--bg-elev);
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+.qual-traj p { margin: 8px 0; color: var(--fg-soft); }
+.qual-traj p strong { color: var(--fg); }
+.qual-traj em { color: var(--fg-soft); }
+.qual-traj code {
+  background: var(--code-bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.94em;
+}
+.qual-axpo {
+  border-color: rgba(31, 78, 138, 0.45);
+  box-shadow: inset 4px 0 0 #1f4e8a;
+}
+.qual-grpo {
+  border-color: rgba(185, 28, 28, 0.45);
+  box-shadow: inset 4px 0 0 #b91c1c;
+}
+html[data-theme="dark"] .qual-axpo {
+  border-color: rgba(147, 197, 253, 0.45);
+  box-shadow: inset 4px 0 0 #93c5fd;
+}
+html[data-theme="dark"] .qual-grpo {
+  border-color: rgba(253, 164, 175, 0.45);
+  box-shadow: inset 4px 0 0 #fda4af;
+}
+
+.traj-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.traj-name {
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  font-size: 0.92rem;
+  color: var(--fg);
+}
+.qual-axpo .traj-name { color: #1f4e8a; }
+.qual-grpo .traj-name { color: #b91c1c; }
+html[data-theme="dark"] .qual-axpo .traj-name { color: #93c5fd; }
+html[data-theme="dark"] .qual-grpo .traj-name { color: #fda4af; }
+
+.traj-verdict {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.traj-verdict.ok {
+  background: rgba(15, 118, 110, 0.12);
+  color: var(--pos);
+}
+.traj-verdict.bad {
+  background: rgba(185, 28, 28, 0.12);
+  color: var(--neg);
+}
+
+.traj-code {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--fg-soft);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+  margin: 6px 0;
+}
+
+.qual-takeaway {
+  margin: 4px 0 0;
+  padding: 12px 16px;
+  background: var(--bg-alt);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  font-size: 0.92rem;
+  color: var(--fg-soft);
+  line-height: 1.6;
+}
+.qual-takeaway code {
+  background: var(--code-bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.94em;
+}
+
+/* =========================================================
+   Footer
+   ========================================================= */
+.footer {
+  padding: 36px 0 48px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 0.92rem;
+  color: var(--fg-soft);
+}
+.footer p { margin: 6px 0; }
+.footer .muted { color: var(--fg-mute); font-size: 0.85rem; }
+
+/* =========================================================
+   Dual-bar animation (paired with the headline figure)
+   ========================================================= */
+:root {
+  --col-grpo: #d04848;
+  --col-axpo: #76b900;
+  --col-ref:  #8a99b2;
+}
+html[data-theme="dark"] {
+  --col-grpo: #f06a6a;
+  --col-axpo: #95d52b;
+  --col-ref:  #b8c4d8;
+}
+
+.anim-bars-figure {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 22px 24px;
+}
+.anim-stage {
+  background: var(--bg-alt);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+html[data-theme="dark"] .anim-stage {
+  background: color-mix(in srgb, var(--fg) 5%, var(--bg-alt));
+}
+.anim-bars-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ---------- RL Training progress indicator (above the bars) ----------
+   Sits on top of the dual-bar chart and counts 0% → 100% in the
+   SAME 4s loop as the bars below, so the viewer reads the chart
+   as "watch the bars as training progresses". The fill uses a
+   vivid indigo→violet→magenta→amber gradient (training-energy
+   palette, deliberately distinct from the GRPO red / AXPO green
+   used by the bars themselves), plus a moving white shimmer for
+   a "live progress" feel. */
+:root {
+  --rl-c1: #6366f1; /* indigo */
+  --rl-c2: #a855f7; /* violet */
+  --rl-c3: #ec4899; /* magenta */
+  --rl-c4: #f59e0b; /* amber */
+}
+.rl-progress {
+  display: grid;
+  /* Same label-col width as .bar-row so the progress bar's left edge
+     lines up perfectly with the bar tracks below. */
+  grid-template-columns: 180px 1fr 4em;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 18px;
+  margin-bottom: 6px;
+  border-bottom: 1px dashed var(--border);
+}
+.rl-progress-label {
+  font-weight: 900;
+  font-size: 1.02rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: right;
+  background: linear-gradient(90deg, var(--rl-c1), var(--rl-c2), var(--rl-c3));
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 14px color-mix(in srgb, var(--rl-c2) 30%, transparent);
+}
+.rl-progress-track {
+  position: relative;
+  height: 12px;
+  background: color-mix(in srgb, var(--fg) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px color-mix(in srgb, #000 18%, transparent);
+}
+.rl-progress-fill {
+  position: absolute;
+  inset: 0;
+  background:
+    /* moving white shimmer streak */
+    linear-gradient(
+      100deg,
+      transparent 30%,
+      color-mix(in srgb, #fff 55%, transparent) 50%,
+      transparent 70%
+    ),
+    /* base vivid gradient */
+    linear-gradient(
+      90deg,
+      var(--rl-c1) 0%,
+      var(--rl-c2) 40%,
+      var(--rl-c3) 75%,
+      var(--rl-c4) 100%
+    );
+  background-size: 220% 100%, 100% 100%;
+  background-position: 200% 0, 0 0;
+  border-radius: 999px;
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation:
+    rl-progress-fill 4s cubic-bezier(.4,.6,.2,1) infinite,
+    rl-progress-shimmer 4s linear infinite;
+  box-shadow:
+    0 0 10px color-mix(in srgb, var(--rl-c2) 60%, transparent),
+    0 0 20px color-mix(in srgb, var(--rl-c3) 35%, transparent);
+}
+/* Timing matches the bar keyframes exactly: hold-empty 0–5%, grow
+   5–60%, hold-full 60–95%, reset 95–100%. */
+@keyframes rl-progress-fill {
+  0%, 5%    { transform: scaleX(0); }
+  60%, 95%  { transform: scaleX(1); }
+  100%      { transform: scaleX(0); }
+}
+/* Shimmer sweep keeps moving through the entire fill — only visible
+   while the fill itself has width, so it naturally appears once
+   training kicks in. */
+@keyframes rl-progress-shimmer {
+  0%   { background-position: 200% 0, 0 0; }
+  100% { background-position: -120% 0, 0 0; }
+}
+
+/* Continuous percent counter — uses CSS Houdini @property to make a
+   custom integer variable animatable, then `counter()` reads it as
+   text so the number visibly ticks 0 → 100 in sync with the fill
+   bar (no discrete 0/25/50/75/100 snaps). The color also gradient-
+   interpolates indigo → violet → magenta → amber as the value
+   climbs, so the counter itself feels like it heats up. */
+@property --rl-pct {
+  syntax: '<integer>';
+  initial-value: 0;
+  inherits: false;
+}
+.rl-progress-pct {
+  position: relative;
+  display: inline-block;
+  height: 1.1em;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.08rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--rl-c2) 35%, transparent);
+  --rl-pct: 0;
+  counter-reset: pct var(--rl-pct);
+  color: var(--rl-c1);
+  animation:
+    rl-pct-count 4s linear infinite,
+    rl-pct-color 4s linear infinite;
+}
+.rl-progress-pct::after {
+  content: counter(pct) '%';
+}
+/* Timing mirrors the fill bar: hold-empty 0–5%, count up 5–60%,
+   hold-full 60–95%, snap back to 0 across 95–100% (matching the
+   bar's reset). */
+@keyframes rl-pct-count {
+  0%, 5%    { --rl-pct: 0;   }
+  60%, 95%  { --rl-pct: 100; }
+  100%      { --rl-pct: 0;   }
+}
+@keyframes rl-pct-color {
+  0%, 5%    { color: var(--fg-mute); }
+  20%       { color: var(--rl-c1);   }
+  35%       { color: var(--rl-c2);   }
+  50%       { color: var(--rl-c3);   }
+  60%, 95%  { color: var(--rl-c4);   }
+  100%      { color: var(--fg-mute); }
+}
+.bar-row {
+  display: grid;
+  /* Label column sized for the longest label ("Agent Baseline 32B") so
+     it stays on a single line and aligns horizontally with its bars. */
+  grid-template-columns: 180px 1fr;
+  /* Pin the row label to the BOTTOM of the cell so it lines up with
+     the bar tracks (which sit at the bottom of each bar-cell, below
+     the small TOOL USAGE / ACCURACY caption). Without this the label
+     sat at the vertical center of caption+bar, visibly floating above
+     the bars. */
+  align-items: end;
+  gap: 14px;
+}
+.bar-label {
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 1;
+  /* Tiny upward nudge so the label's visual center lands on the bar's
+     vertical center, not on the bar's bottom edge. */
+  padding-bottom: 3px;
+}
+.bar-label-grpo { color: var(--col-grpo); }
+.bar-label-axpo { color: var(--col-axpo); }
+.bar-label-ref  { color: var(--col-ref); }
+.bar-row-ref {
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+}
+.bar-row-ref .bar-cap::after {
+  content: " · ref";
+  color: var(--col-ref);
+  font-weight: 700;
+}
+.bar-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.bar-cell { display: flex; flex-direction: column; gap: 5px; }
+.bar-cap {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--fg-mute);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.bar-track {
+  position: relative;
+  height: 14px;
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  border-radius: 999px;
+}
+.bar {
+  height: 100%;
+  border-radius: 999px;
+  transform-origin: left center;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(.4,.6,.2,1);
+  position: relative;
+  z-index: 1;
+}
+.bar-grpo-tool { background: var(--col-grpo); width: 70%; animation-name: bar-grpo-tool; }
+.bar-grpo-acc  { background: var(--col-grpo); width: 55%; animation-name: bar-grpo-acc;  }
+.bar-axpo-tool {
+  background: var(--col-axpo); width: 70%;
+  animation-name: bar-axpo-tool;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--col-axpo) 45%, transparent);
+}
+.bar-axpo-acc  {
+  background: var(--col-axpo); width: 55%;
+  animation-name: bar-axpo-acc;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--col-axpo) 45%, transparent);
+}
+.bar-ref-tool {
+  background: var(--col-ref);
+  width: 65%;
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--col-ref) 100%, transparent) 0 50%,
+    color-mix(in srgb, var(--col-ref) 80%, transparent) 50% 100%);
+}
+.bar-ref-acc {
+  background: var(--col-ref);
+  width: 72%;
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--col-ref) 100%, transparent) 0 50%,
+    color-mix(in srgb, var(--col-ref) 80%, transparent) 50% 100%);
+}
+@keyframes bar-grpo-tool {
+  0%, 5%    { transform: scaleX(1);    }
+  60%, 95%  { transform: scaleX(0.72); }
+  100%      { transform: scaleX(1);    }
+}
+@keyframes bar-grpo-acc {
+  0%, 5%    { transform: scaleX(1);    }
+  60%, 95%  { transform: scaleX(1.22); }
+  100%      { transform: scaleX(1);    }
+}
+@keyframes bar-axpo-tool {
+  0%, 5%    { transform: scaleX(1);    }
+  60%, 95%  { transform: scaleX(1.28); }
+  100%      { transform: scaleX(1);    }
+}
+@keyframes bar-axpo-acc {
+  0%, 5%    { transform: scaleX(1);    }
+  60%, 95%  { transform: scaleX(1.55); }
+  100%      { transform: scaleX(1);    }
+}
+
+/* ---------- Directional arrows DRAWN from RL=0% to RL=100% ----------
+   Each arrow's TAIL is pinned at the bar's RL=0% right-edge position
+   (where the bar starts), and its HEAD (chevron) extends in lock-step
+   with the bar's right edge — so at any moment the head sits exactly
+   where the bar VISUALLY ends, and at RL=100% the arrow spans the
+   full distance the bar moved.
+
+   Structure: <span.bar-arrow> contains <span.bar-arrow-stem> (the
+   line) + <span.bar-arrow-head> (the chevron). The wrapper's `width`
+   animates from 0 → final-extent% of the bar-track; the stem fills
+   the space and the chevron sticks to the leading end via flexbox,
+   so the head visibly travels along the trajectory.
+
+   COLOR is method-bound (GRPO red, AXPO green); `.bar-arrow-left`
+   modifier flips the layout for shrinking bars (tail on the right,
+   head moving left). */
+.bar-arrow {
+  position: absolute;
+  /* Just above the bar — in the small gap between cap label and
+     bar-track — so it never occludes the bar geometry. */
+  top: -12px;
+  height: 12px;
+  pointer-events: none;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  /* Per-bar trace keyframes drive width from 0 to the bar's final
+     travel-extent (as a % of bar-track), so the arrow length always
+     equals the bar's current displacement from its RL=0% edge. */
+  width: 0;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, currentColor 45%, transparent));
+}
+/* Stem: a thin horizontal line that fills whatever space the wrapper
+   currently has. Grows along with the wrapper's width. */
+.bar-arrow-stem {
+  flex: 1;
+  height: 2.5px;
+  background: currentColor;
+  border-radius: 1.5px;
+  min-width: 0;
+}
+/* Head: a CSS-triangle chevron pinned to the LEADING end of the
+   stem. Stays fixed-size — only the stem grows. Default points
+   right; `.bar-arrow-left` flips it to point left. */
+.bar-arrow-head {
+  flex-shrink: 0;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid currentColor;
+  margin-left: -1px; /* close any sub-pixel gap with the stem */
+}
+/* Leftward variant: row-reverse puts the head on the LEFT, so the
+   wrapper (anchored by `right:` per-bar) grows leftward and the
+   chevron travels leftward with it. */
+.bar-arrow-left { flex-direction: row-reverse; }
+.bar-arrow-left .bar-arrow-head {
+  border-left: 0;
+  border-right: 8px solid currentColor;
+  margin-left: 0;
+  margin-right: -1px;
+}
+/* Color classes — strictly method-tied. */
+.bar-arrow-grpo { color: var(--col-grpo); }
+.bar-arrow-axpo { color: var(--col-axpo); }
+
+/* Per-bar tail anchor + travel-extent. Tail is fixed (via `left:` for
+   rightward arrows, `right:` for leftward); `width` animates 0 →
+   |Δedge|% of bar-track so the head lands exactly where the bar's
+   right edge lands. Same 4s cubic-bezier timing as the bars, so the
+   two animations move in lockstep. */
+.bar-arrow-trace-grpo-tool { right: 30%; animation: bar-arrow-trace-grpo-tool 4s cubic-bezier(.4,.6,.2,1) infinite; }
+.bar-arrow-trace-grpo-acc  { left:  55%; animation: bar-arrow-trace-grpo-acc  4s cubic-bezier(.4,.6,.2,1) infinite; }
+.bar-arrow-trace-axpo-tool { left:  70%; animation: bar-arrow-trace-axpo-tool 4s cubic-bezier(.4,.6,.2,1) infinite; }
+.bar-arrow-trace-axpo-acc  { left:  55%; animation: bar-arrow-trace-axpo-acc  4s cubic-bezier(.4,.6,.2,1) infinite; }
+
+/* bar-grpo-tool: 70% × (1.00 → 0.72) → edge 70%  → 50.4%  (Δ −19.6%) */
+@keyframes bar-arrow-trace-grpo-tool {
+  0%, 5%   { width: 0;     }
+  60%, 95% { width: 19.6%; }
+  100%     { width: 0;     }
+}
+/* bar-grpo-acc:  55% × (1.00 → 1.22) → edge 55%  → 67.1%  (Δ +12.1%) */
+@keyframes bar-arrow-trace-grpo-acc {
+  0%, 5%   { width: 0;     }
+  60%, 95% { width: 12.1%; }
+  100%     { width: 0;     }
+}
+/* bar-axpo-tool: 70% × (1.00 → 1.28) → edge 70%  → 89.6%  (Δ +19.6%) */
+@keyframes bar-arrow-trace-axpo-tool {
+  0%, 5%   { width: 0;     }
+  60%, 95% { width: 19.6%; }
+  100%     { width: 0;     }
+}
+/* bar-axpo-acc:  55% × (1.00 → 1.55) → edge 55%  → 85.25% (Δ +30.25%) */
+@keyframes bar-arrow-trace-axpo-acc {
+  0%, 5%   { width: 0;      }
+  60%, 95% { width: 30.25%; }
+  100%     { width: 0;      }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bar-arrow { animation: none; }
+  /* Snap each arrow to its RL=100% fully-drawn state. */
+  .bar-arrow-trace-grpo-tool { width: 19.6%;  }
+  .bar-arrow-trace-grpo-acc  { width: 12.1%;  }
+  .bar-arrow-trace-axpo-tool { width: 19.6%;  }
+  .bar-arrow-trace-axpo-acc  { width: 30.25%; }
+}
+.anim-bars-figure .fig-caption {
+  margin: 16px auto 0;
+  max-width: 72ch;
+  text-align: left;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
+.anim-bars-figure .fig-caption strong { color: var(--fg); }
+.anim-bars-figure .fig-caption em {
+  color: var(--fg);
+  font-style: normal;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar { animation: none; }
+  .rl-progress-fill { animation: none; transform: scaleX(1); }
+  .rl-progress-pct  { animation: none; --rl-pct: 100; color: var(--rl-c4); }
+}
+
+@media (max-width: 640px) {
+  /* TL;DR bars on mobile: stack the row label ABOVE the bar pair so
+     the bars get the full container width (≈ 290px on a 360-wide
+     phone) instead of being shoved into a ~150px residual after a
+     140px label column. With a 1-col layout the bars are ~2× wider
+     and the per-frame motion (scaleX 0.72 → 1.55) becomes easy to
+     read instead of registering as a 10-pixel jitter. */
+  .anim-bars-figure { padding: 16px; margin-top: 18px; }
+  .anim-stage { padding: 14px 14px; }
+  .bar-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .bar-label {
+    text-align: left;
+    font-size: 0.86rem;
+    letter-spacing: 0.01em;
+    line-height: 1.1;
+    white-space: nowrap;
+    padding-bottom: 0;
+  }
+  .bar-pair { gap: 14px; }
+  .bar-cap { font-size: 0.66rem; }
+  .bar-row-ref .bar-cap::after { content: ""; }
+  /* Slightly chunkier bars now that they have room to be the hero of
+     this animation rather than competing with the label column. */
+  .bar-track { height: 14px; }
+  /* RL Training progress: also collapse to a stacked layout so its
+     left edge lines up with the bars below — the label sits over
+     the track, percentage chip parks at the right. */
+  .rl-progress {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    column-gap: 10px;
+    row-gap: 4px;
+    padding-bottom: 14px;
+  }
+  .rl-progress-label {
+    grid-column: 1 / -1;
+    text-align: left;
+    font-size: 0.86rem;
+    letter-spacing: 0.05em;
+  }
+  .rl-progress-track {
+    grid-column: 1;
+    height: 10px;
+  }
+  .rl-progress-pct {
+    grid-column: 2;
+    font-size: 0.96rem;
+    text-align: right;
+  }
+}
+
+/* =========================================================
+   Concept animation — sequential GRPO build → copy → AXPO re-roll
+   20-second loop, every animation shares the same period.
+   ========================================================= */
+.concept-anim-figure {
+  /* Sized to fit the widest row at the larger chip scale: Step 1
+     (Question + rollout box + "Tool-usage recovered" pill) and
+     Step 2 (Question + frozen prefix + branches + 3 rerolls +
+     recovered pill). Container is 1180px wide so 1040 leaves a
+     comfortable margin on both sides. */
+  max-width: 1040px;
+  margin: 24px auto 0;
+  padding: 20px 20px;
+}
+.ca-stage { padding: 16px 14px 14px; }
+.ca-stage {
+  background: var(--bg-alt);
+  border-radius: 14px;
+  padding: 28px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+html[data-theme="dark"] .ca-stage {
+  background: color-mix(in srgb, var(--fg) 5%, var(--bg-alt));
+}
+
+/* ---------- Replay control + play-state management ----------
+   The mechanism animation plays ONE full cycle on load, then JS adds
+   `.ca-paused` to freeze every descendant at its hold-phase frame so
+   the static end state stays readable instead of looping forever.
+   `.ca-freeze` is a one-shot helper used during the click→restart
+   reset (sets `animation: none` to clear state; removing it makes
+   every animation restart from 0%). */
+.concept-anim-figure { position: relative; }
+.ca-stage.ca-paused *,
+.ca-stage.ca-paused {
+  animation-play-state: paused !important;
+}
+.ca-stage.ca-freeze *,
+.ca-stage.ca-freeze {
+  animation: none !important;
+}
+.ca-retry-btn {
+  /* Sits above the stage on the right, only visible after the
+     animation has paused at its end frame. */
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--col-axpo) 55%, var(--border-strong));
+  color: var(--col-axpo);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 10px -4px rgba(0, 0, 0, 0.25);
+  /* Hidden by default — JS reveals it after the first cycle pauses.
+     Pointer events also disabled so it can't be clicked while hidden. */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out, visibility 0.25s;
+}
+.ca-retry-btn.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.ca-retry-btn:hover {
+  background: color-mix(in srgb, var(--col-axpo) 14%, var(--bg));
+  border-color: var(--col-axpo);
+  box-shadow: 0 4px 14px -4px color-mix(in srgb, var(--col-axpo) 45%, transparent);
+}
+.ca-retry-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+.ca-retry-btn:focus-visible {
+  outline: 2px solid var(--col-axpo);
+  outline-offset: 2px;
+}
+.ca-retry-btn svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Static frame already shown via the reduced-motion fallbacks —
+     no replay control needed (nothing to replay). */
+  .ca-retry-btn { display: none; }
+}
+
+/* ---------- Reward / verdict legend (top of the animation stage) ----------
+   Static, always-visible row that explains what the −/+ badges and ✗/✓
+   verdicts inside the animation actually mean. Placed at the very top so
+   the viewer reads it BEFORE the animation starts looping. */
+.ca-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--fg) 4%, transparent);
+  border: 1px solid var(--border);
+  font-size: 0.95rem;
+  color: var(--fg-soft);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+html[data-theme="dark"] .ca-legend {
+  background: color-mix(in srgb, var(--fg) 7%, transparent);
+}
+.ca-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+/* Legend badges mirror the actual corner reward badges used on the
+   <think>/tool/output chips inside the animation: solid red/green
+   background, white glyph, soft drop shadow. The opaque fills are
+   what makes the sign read as "a reward sticker" rather than just
+   a tinted label, so the legend has to use the same treatment. */
+.ca-legend-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1;
+  color: #fff;
+  border: 2px solid var(--bg);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.28);
+}
+.ca-legend-badge-neg { background: var(--col-grpo); }
+.ca-legend-badge-pos { background: var(--col-axpo); }
+.ca-legend-verdict {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 0.78rem;
+  line-height: 1;
+}
+.ca-legend-verdict-bad  { background: color-mix(in srgb, var(--col-grpo) 18%, transparent); color: var(--col-grpo); }
+.ca-legend-verdict-good { background: color-mix(in srgb, var(--col-axpo) 22%, transparent); color: var(--col-axpo); }
+/* Pin glyph in the legend: same 3D thumbtack used to mark the frozen
+   prefix chips inside the animation, scaled down to legend size. */
+.ca-legend-pin {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.3));
+}
+.ca-legend-pin svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.ca-legend-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  margin: 0 2px;
+}
+
+/* (Both the GRPO "wrong answer" tag and the AXPO reroll-3 "correct
+   answer" tag were removed — the static legend above the stage maps
+   ✗ → wrong answer / ✓ → correct answer, and the green frame around
+   reroll-3 already carries the "this is the kept one" payoff.) */
+
+.ca-step {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+/* Dashed bottom-border on the GRPO row was the separator from AXPO
+   in the old 2-row layout. The new 3-row layout has dedicated flow
+   arrows between rows, so the dashed lines would just compete with
+   them visually — strip them out. */
+.ca-step-grpo { padding-bottom: 4px; }
+
+.ca-step-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.02rem;
+}
+.ca-method {
+  font-weight: 800;
+  font-family: "JetBrains Mono", monospace;
+  padding: 4px 13px;
+  border-radius: 7px;
+  letter-spacing: 0.04em;
+  font-size: 0.95rem;
+}
+/* Method label pills are intentionally muted (slate gray) so the
+   red `−` and green `+` reward badges on <think> are the only
+   strong colors in the scene and carry the story. */
+.ca-method-grpo,
+.ca-method-axpo {
+  color: #ffffff;
+  background: #64748b; /* slate-500 */
+}
+.ca-tag { color: var(--fg-mute); font-weight: 500; }
+
+/* ---------- Rollout pill row ---------- */
+.ca-rollout-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+.ca-rollout {
+  display: flex;
+  align-items: center;
+  /* nowrap: chips inside MUST stay on a single line. Without this the
+     ✗ verdict (or any later chip) gets pushed to a second line as soon
+     as a sibling on the outer .ca-rollout-wrap (e.g. the tool-collapse
+     tag) eats into the available width. */
+  flex-wrap: nowrap;
+  /* Don't let the parent's tool-collapse tag squeeze us — the rollout
+     box must render at its full natural width even if that pushes
+     other flex siblings to overflow. */
+  flex-shrink: 0;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: "JetBrains Mono", monospace;
+}
+.ca-rollout-grpo {
+  /* Neutral container so the red − reward badge inside is the only red.
+     Border + background start TRANSPARENT — they fade in alongside the
+     first chip (think at ~2%) so the box doesn't sit empty on screen
+     during the very brief pre-rollout beat. Chips inside keep their
+     own opacity animations and remain visible while the box fades. */
+  border-color: transparent;
+  background: transparent;
+  animation: ca-rollout-grpo-fadein 20s ease-out both infinite;
+}
+@keyframes ca-rollout-grpo-fadein {
+  0%, 1%         { border-color: transparent;
+                   background: transparent; }
+  /* Synced with think starting to appear (ca-grpo-pop-0 at 2→6%). */
+  4%, 76%, 96%   { border-color: color-mix(in srgb, var(--fg) 22%, transparent);
+                   background: color-mix(in srgb, var(--fg) 4%, transparent); }
+  100%           { border-color: transparent;
+                   background: transparent; }
+}
+
+/* Segment chips — all unified to the same neutral tone AND the same
+   font-size / monospace family so a chip looks identical whether it's
+   inside a .ca-rollout box (GRPO think/tool/out, AXPO reroll chips)
+   or sitting outside one (GRPO Question, AXPO Question + think trunk).
+   Without these explicit values, the "outside" chips inherited the
+   parent block's larger default font and ended up visibly bigger. */
+.ca-seg {
+  position: relative; /* anchor for the corner reward badge */
+  /* inline-flex + FIXED height (not min-height) + line-height: 1
+     locks the chip box to an exact pixel size regardless of which
+     font metrics the inherited family contributes — without these,
+     .ca-seg-q (italic Inter) and .ca-seg-think (monospace) used to
+     produce visibly different chip heights even at the same nominal
+     font-size, and the AXPO chips (in the .ca-branches grid) ended
+     up looking visibly chunkier than the GRPO chips (inside the
+     tighter .ca-rollout flex container). */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 11px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--fg) 9%, transparent);
+  color: var(--fg);
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-family: "JetBrains Mono", monospace;
+  line-height: 1;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.ca-seg-think,
+.ca-seg-tool,
+.ca-seg-out,
+.ca-seg-q {
+  background: color-mix(in srgb, var(--fg) 9%, transparent);
+  color: var(--fg);
+  font-weight: 600;
+}
+/* Per-variant min-widths — guarantee that "Question" in the GRPO row
+   and "Question" in the AXPO row render to the EXACT same chip box
+   (and same for `think`, `tool call`, `output`), regardless of how
+   the parent context's font happens to lay out the inherited text.
+   Without these, the chips were rendering at slightly different
+   widths between rows just because the inherited font metrics
+   differed between .ca-rollout-wrap and .ca-branches. */
+.ca-seg-q     { min-width: 78px; }
+.ca-seg-think { min-width: 54px; }
+.ca-seg-tool  { min-width: 66px; }
+.ca-seg-out   { min-width: 54px; }
+/* Question chip is a stand-in for the user query — italic + non-mono so
+   it reads as a placeholder label rather than a code token. Explicitly
+   set the sans-serif family (rather than `inherit`) so it's identical
+   in both the GRPO row's .ca-rollout-wrap context and the AXPO row's
+   .ca-branches grid context. */
+.ca-seg-q {
+  font-style: italic;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+html[data-theme="dark"] .ca-seg,
+html[data-theme="dark"] .ca-seg-think,
+html[data-theme="dark"] .ca-seg-tool,
+html[data-theme="dark"] .ca-seg-out {
+  background: color-mix(in srgb, var(--fg) 14%, transparent);
+  color: var(--fg);
+}
+.ca-arr {
+  color: var(--fg-mute);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.1rem;
+}
+/* Plus variant — used to concatenate Question and think as the single
+   frozen prefix in the AXPO row. Slightly bolder so it reads as an
+   operator rather than a tiny separator. */
+.ca-arr-plus {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--fg) 70%, transparent);
+}
+.ca-verdict {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+.ca-bad  { background: color-mix(in srgb, var(--col-grpo) 18%, transparent); color: var(--col-grpo); }
+.ca-good { background: color-mix(in srgb, var(--col-axpo) 22%, transparent); color: var(--col-axpo); }
+
+/* ---------- Sequential GRPO segments (each fades in at its own time)
+   20s loop = 20s of content + ~5s end-of-loop hold + brief fade.
+   All keyframe %'s below were derived by mapping the previous 20s-loop
+   timings into 0–76% of this 20s loop (multiply by 0.8), then holding
+   the final state from 76% to 96% (=5s pause) and fading 96–100%.
+   Step-by-step in the new 20s timeline (% of 20s):
+     step-0 <think>      :   2% → 6%
+     step-1 →tool call   :   7% → 11%
+     step-2 →output      :  12% → 16%
+     step-3 →✗ (verdict) :  17% → 23%
+   All segments stay visible from their start through the 76→96% hold.
+---------- */
+.ca-grpo-step-q,
+.ca-grpo-step-0,
+.ca-grpo-step-1,
+.ca-grpo-step-2,
+.ca-grpo-step-3 {
+  opacity: 0;
+  transform: translateY(-4px);
+  animation-duration: 20s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+.ca-grpo-step-q { animation-name: ca-grpo-pop-q; }
+.ca-grpo-step-0 { animation-name: ca-grpo-pop-0; }
+.ca-grpo-step-1 { animation-name: ca-grpo-pop-1; }
+.ca-grpo-step-2 { animation-name: ca-grpo-pop-2; }
+.ca-grpo-step-3 { animation-name: ca-grpo-pop-3; }
+
+/* Question chip is the input to the rollout — it shows up first and
+   stays visible for the entire hold window. */
+@keyframes ca-grpo-pop-q {
+  0%             { opacity: 0; transform: translateY(-4px); }
+  2%, 76%, 96%   { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes ca-grpo-pop-0 {
+  0%, 2%         { opacity: 0; transform: translateY(-4px); }
+  6%, 76%, 96%   { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes ca-grpo-pop-1 {
+  0%, 7%         { opacity: 0; transform: translateY(-4px); }
+  11%, 76%, 96%  { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes ca-grpo-pop-2 {
+  0%, 12%        { opacity: 0; transform: translateY(-4px); }
+  16%, 76%, 96%  { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-4px); }
+}
+/* The ✗ verdict has a brief red-flash when it lands */
+@keyframes ca-grpo-pop-3 {
+  0%, 17%        { opacity: 0; transform: scale(0.5); }
+  20%            { opacity: 1; transform: scale(1.25); }
+  23%, 76%, 96%  { opacity: 1; transform: scale(1); }
+  100%           { opacity: 0; transform: scale(0.5); }
+}
+
+/* ---------- GRPO think: − → + retroactive flip ----------
+   The headline contrast of the figure: GRPO assigns − to its think,
+   AXPO retroactively says "no, that think was actually good" and the
+   GRPO row's think reward FLIPS to + at the same moment as the AXPO
+   think flip (~70%). Two badges share the same corner slot — the −
+   shrinks and fades out, the + pops in with a green halo. The chip
+   itself also bursts a green pulse to reinforce "credit just landed
+   here". */
+.ca-grpo-think-flip-out {
+  /* Override .ca-grpo-reward's animation-name (cascade order). The
+     existing show animation runs through landing; this fade-out
+     keyframe takes over from the 27% settled state. */
+  animation-name: ca-grpo-think-reward-fade-out;
+}
+@keyframes ca-grpo-think-reward-fade-out {
+  0%, 22%        { opacity: 0; transform: scale(0.5); }
+  24%            { opacity: 1; transform: scale(1.25); }
+  /* Sits as the − reward through the whole failure narrative. */
+  27%, 68%       { opacity: 1; transform: scale(1); }
+  /* Shrinks and fades exactly when the + comes in to replace it. */
+  70%            { opacity: 0; transform: scale(0.4); }
+  72%, 100%      { opacity: 0; transform: scale(0.4); }
+}
+.ca-grpo-think-flip-in {
+  opacity: 0;
+  transform: scale(0.5);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent);
+  animation: ca-grpo-think-reward-flip-in 20s ease-out infinite;
+}
+@keyframes ca-grpo-think-reward-flip-in {
+  0%, 68%        { opacity: 0; transform: scale(0.5);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+  /* Bigger pop than the AXPO + because it's the surprise reveal —
+     the original GRPO chip you assumed was "permanently wrong"
+     suddenly earns positive credit. */
+  70%            { opacity: 1; transform: scale(1.6);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 10px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 0 18px color-mix(in srgb, var(--col-axpo) 22%, transparent); }
+  73%            { opacity: 1; transform: scale(1);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 6px color-mix(in srgb, var(--col-axpo) 38%, transparent); }
+  76%, 96%       { opacity: 1; transform: scale(1);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 3px color-mix(in srgb, var(--col-axpo) 28%, transparent); }
+  100%           { opacity: 0; transform: scale(0.5);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+}
+/* GRPO think chip itself blooms green when the flip happens — same
+   visual language as the AXPO think host pulse, but on the original
+   chip in the GRPO row. We layer this animation alongside the chip's
+   existing fade-in animation. */
+.ca-grpo-think-host {
+  animation: ca-grpo-pop-0 20s ease-out both infinite,
+             ca-grpo-think-bloom 20s ease-out both infinite;
+}
+@keyframes ca-grpo-think-bloom {
+  0%, 68%        { background: color-mix(in srgb, var(--fg) 9%, transparent);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+  /* Big green bloom in sync with the + badge appearing. */
+  70%            { background: color-mix(in srgb, var(--col-axpo) 35%, var(--bg));
+                   box-shadow: 0 0 0 12px color-mix(in srgb, var(--col-axpo) 50%, transparent),
+                               0 0 22px 4px color-mix(in srgb, var(--col-axpo) 60%, transparent); }
+  73%            { background: color-mix(in srgb, var(--col-axpo) 20%, var(--bg));
+                   box-shadow: 0 0 0 5px color-mix(in srgb, var(--col-axpo) 30%, transparent),
+                               0 0 14px 0 color-mix(in srgb, var(--col-axpo) 35%, transparent); }
+  /* Persistent soft tint so the "this think was retroactively good"
+     reading sticks through the hold phase. */
+  76%, 96%       { background: color-mix(in srgb, var(--col-axpo) 14%, var(--bg));
+                   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 50%, transparent),
+                               0 0 8px 0 color-mix(in srgb, var(--col-axpo) 22%, transparent); }
+  100%           { background: color-mix(in srgb, var(--fg) 9%, transparent);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+}
+
+/* ---------- "Copy" row — full GRPO trajectory replicated mid-stage ----------
+   Sits between the GRPO row and the AXPO row. Every chip drops in from
+   the GRPO row above (the big ↓ "copy trajectory" arrow narrates this
+   motion), then HOLDS as a static reference so the viewer can read it
+   as the working copy that AXPO operates on. The Q + think portion of
+   this row is what the AXPO row below extracts via the smaller ↓ arrow.
+
+   The think chip mirrors the GRPO row's think exactly: starts with −
+   and flips to + at 70% in lockstep with the AXPO think flip, so all
+   three rows show + on the kept prefix at the headline moment. */
+.ca-step-copy {
+  padding: 4px 0;
+}
+/* Row-2 label appears synchronously with the row's chips + box fading
+   in at ~22%, so the AXPO pill doesn't sit alone above empty space. */
+.ca-step-copy .ca-step-label {
+  /* Stack vertically: [AXPO] pill on top row, "Step 1 — …" caption
+     directly underneath it. Reads as "AXPO, and here's what step 1 of
+     it does" instead of crowding both onto a single line. */
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(-4px);
+  animation: ca-copy-label-show 20s ease-out infinite;
+}
+@keyframes ca-copy-label-show {
+  /* Pushed later (was 22→25%) so the "tool collapse" tag has a clear
+     beat to land alone after GRPO's ✗ before the AXPO copy row
+     starts appearing. */
+  0%, 28%        { opacity: 0; transform: translateY(-4px); }
+  31%, 76%, 96%  { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-4px); }
+}
+.ca-method-copy {
+  color: #ffffff;
+  /* Slightly muted indigo so it visually sits "between" GRPO (slate)
+     and AXPO (green) and reads as a transit / staging step. */
+  background: #6366f1;
+}
+.ca-rollout-copy {
+  border-color: color-mix(in srgb, var(--fg) 22%, transparent);
+  background: color-mix(in srgb, var(--fg) 4%, transparent);
+  /* Hidden until the copy-row chips start dropping in (~22%) — without
+     this the empty rounded rectangle sat visibly in the middle of the
+     stage for the entire GRPO build phase. */
+  opacity: 0;
+  animation: ca-rollout-copy-show 20s ease-out both infinite;
+}
+@keyframes ca-rollout-copy-show {
+  /* Hidden through GRPO build AND the "tool collapse" tag bounce. */
+  0%, 28%        { opacity: 0; }
+  /* Fades in as the chips begin landing in it. */
+  31%            { opacity: 1; }
+  34%, 76%, 96%  { opacity: 1; }
+  100%           { opacity: 0; }
+}
+
+/* Per-chip reveal: the chip materializes DIRECTLY in its copy-row slot
+   with a brief green halo — no drop-from-GRPO motion. The earlier
+   "copy-paste and slide down" animation read as a confusing duplicate
+   pair (chip visible above + landing slot below); making the chip just
+   appear in place reads cleanly as "AXPO instantiated this chip here".
+   A tiny per-chip stagger preserves a left-to-right reveal so it's
+   clear they're a sequence, not one rigid block. */
+.ca-copy-step-q,
+.ca-copy-step-0,
+.ca-copy-step-1,
+.ca-copy-step-2,
+.ca-copy-step-3 {
+  opacity: 0;
+  animation: ca-copy-drop 20s ease-out both infinite;
+}
+.ca-copy-step-q { animation-delay: 0s; }
+.ca-copy-step-0 { animation-delay: 0.10s; }
+.ca-copy-step-1 { animation-delay: 0.18s; }
+.ca-copy-step-2 { animation-delay: 0.26s; }
+.ca-copy-step-3 { animation-delay: 0.34s; }
+@keyframes ca-copy-drop {
+  /* Hidden through GRPO build AND through the "tool collapse" tag
+     bounce (22→28%) — copy chips only start materializing AFTER
+     the viewer has read the diagnostic. */
+  0%, 28%        { opacity: 0; transform: scale(0.92);
+                   filter: drop-shadow(0 0 0 transparent); }
+  /* Materializes in place with a RED halo + slight pop. The copy row
+     is the *failed* GRPO trajectory being staged for AXPO to operate
+     on — so the entry halo carries the GRPO red color, signaling
+     "this is the wrong answer being captured". The chip only earns
+     a green tint LATER, at the think flip, and only on the <think>
+     chip — the rest of the row stays in its failure tint. */
+  32%            { opacity: 1; transform: scale(1.04);
+                   filter: drop-shadow(0 0 10px color-mix(in srgb, var(--col-grpo) 70%, transparent)); }
+  /* Settles to natural size while the red halo fades out. */
+  38%            { opacity: 1; transform: scale(1);
+                   filter: drop-shadow(0 0 5px color-mix(in srgb, var(--col-grpo) 28%, transparent)); }
+  42%, 76%, 96%  { opacity: 1; transform: scale(1);
+                   filter: drop-shadow(0 0 0 transparent); }
+  100%           { opacity: 0; transform: scale(0.92); }
+}
+
+/* Reward badges on copy-row chips: pop in TOGETHER with their chip
+   (not after) so each chip lands already carrying its − badge. The
+   timing window mirrors .ca-copy-drop's visible window (28→38%) so
+   the badge rides in on the same beat as the chip's halo pop. */
+.ca-copy-reward {
+  opacity: 0;
+  transform: scale(0.5);
+  animation: ca-copy-reward-show 20s ease-out both infinite;
+}
+@keyframes ca-copy-reward-show {
+  0%, 28%        { opacity: 0; transform: scale(0.5); }
+  33%            { opacity: 1; transform: scale(1.2); }
+  37%, 76%, 96%  { opacity: 1; transform: scale(1); }
+  100%           { opacity: 0; transform: scale(0.5); }
+}
+
+/* Copy-row think flip: same shape as the GRPO row's flip so all three
+   thinks (GRPO, copy, AXPO) earn their + together at 70%. */
+.ca-copy-think-flip-out {
+  /* Override .ca-copy-reward's animation-name. */
+  animation-name: ca-copy-think-reward-fade-out;
+}
+@keyframes ca-copy-think-reward-fade-out {
+  /* Arrives WITH the think chip (same 28→33% window as ca-copy-reward).
+     +10% shift on the flip-out so it syncs with the AXPO think flip at
+     ~80% (was 70%). */
+  0%, 28%        { opacity: 0; transform: scale(0.5); }
+  33%            { opacity: 1; transform: scale(1.2); }
+  37%, 78%       { opacity: 1; transform: scale(1); }
+  /* Then flips out at 80% when the + badge replaces it. */
+  80%            { opacity: 0; transform: scale(0.4); }
+  82%, 100%      { opacity: 0; transform: scale(0.4); }
+}
+.ca-copy-think-flip-in {
+  opacity: 0;
+  transform: scale(0.5);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent);
+  animation: ca-copy-think-reward-flip-in 20s ease-out both infinite;
+}
+@keyframes ca-copy-think-reward-flip-in {
+  /* +10% shift — copy think flips +, in sync with AXPO trunk think. */
+  0%, 78%        { opacity: 0; transform: scale(0.5);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+  80%            { opacity: 1; transform: scale(1.6);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 10px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 0 18px color-mix(in srgb, var(--col-axpo) 22%, transparent); }
+  83%            { opacity: 1; transform: scale(1);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 6px color-mix(in srgb, var(--col-axpo) 38%, transparent); }
+  /* Continuous shimmer through the hold phase — same 3-pulse pattern
+     as the AXPO trunk's + badge so both rows' + badges shine in sync,
+     not just the trunk's. */
+  86%            { opacity: 1; transform: scale(1);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 3px  color-mix(in srgb, var(--col-axpo) 28%, transparent); }
+  88%            { opacity: 1; transform: scale(1.08);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 10px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 20px 3px color-mix(in srgb, var(--col-axpo) 48%, transparent); }
+  90%            { opacity: 1; transform: scale(1);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 3px  color-mix(in srgb, var(--col-axpo) 28%, transparent); }
+  92%            { opacity: 1; transform: scale(1.08);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 10px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 20px 3px color-mix(in srgb, var(--col-axpo) 48%, transparent); }
+  94%            { opacity: 1; transform: scale(1);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 3px  color-mix(in srgb, var(--col-axpo) 28%, transparent); }
+  96%            { opacity: 1; transform: scale(1.08);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 10px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 20px 3px color-mix(in srgb, var(--col-axpo) 48%, transparent); }
+  100%           { opacity: 0; transform: scale(0.5);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+}
+/* Copy think chip itself blooms green at the flip moment, just like
+   the GRPO row's host. Layered on top of the drop animation. */
+.ca-copy-think-host {
+  animation: ca-copy-drop 20s ease-in-out both infinite,
+             ca-copy-think-bloom 20s ease-out both infinite;
+  animation-delay: 0.10s, 0s;
+}
+@keyframes ca-copy-think-bloom {
+  /* +10% shift — copy think bloom syncs with the AXPO trunk bloom. */
+  0%, 78%        { background: color-mix(in srgb, var(--fg) 9%, transparent);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+  80%            { background: color-mix(in srgb, var(--col-axpo) 35%, var(--bg));
+                   box-shadow: 0 0 0 12px color-mix(in srgb, var(--col-axpo) 50%, transparent),
+                               0 0 22px 4px color-mix(in srgb, var(--col-axpo) 60%, transparent); }
+  83%            { background: color-mix(in srgb, var(--col-axpo) 20%, var(--bg));
+                   box-shadow: 0 0 0 5px color-mix(in srgb, var(--col-axpo) 30%, transparent),
+                               0 0 14px 0 color-mix(in srgb, var(--col-axpo) 35%, transparent); }
+  /* Continuous shimmer on the chip itself — alternating soft inset
+     tint vs brighter outer halo so the whole chip pulses in sync with
+     its + badge. */
+  86%            { background: color-mix(in srgb, var(--col-axpo) 14%, var(--bg));
+                   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 50%, transparent),
+                               0 0 8px 0 color-mix(in srgb, var(--col-axpo) 22%, transparent); }
+  88%            { background: color-mix(in srgb, var(--col-axpo) 28%, var(--bg));
+                   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 60%, transparent),
+                               0 0 16px 3px color-mix(in srgb, var(--col-axpo) 55%, transparent); }
+  90%            { background: color-mix(in srgb, var(--col-axpo) 14%, var(--bg));
+                   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 50%, transparent),
+                               0 0 8px 0 color-mix(in srgb, var(--col-axpo) 22%, transparent); }
+  92%            { background: color-mix(in srgb, var(--col-axpo) 28%, var(--bg));
+                   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 60%, transparent),
+                               0 0 16px 3px color-mix(in srgb, var(--col-axpo) 55%, transparent); }
+  94%            { background: color-mix(in srgb, var(--col-axpo) 14%, var(--bg));
+                   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 50%, transparent),
+                               0 0 8px 0 color-mix(in srgb, var(--col-axpo) 22%, transparent); }
+  96%            { background: color-mix(in srgb, var(--col-axpo) 28%, var(--bg));
+                   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 60%, transparent),
+                               0 0 16px 3px color-mix(in srgb, var(--col-axpo) 55%, transparent); }
+  100%           { background: color-mix(in srgb, var(--fg) 9%, transparent);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+}
+
+/* ---------- Down-arrow connectors between the three rows ----------
+   ca-flow-arrow-copy:    big arrow between GRPO and the copy row,
+                          says "copy trajectory" — fades in once the
+                          GRPO trajectory finishes building.
+   ca-flow-arrow-extract: smaller arrow between the copy row and the
+                          AXPO row, says "extract Q + think, resample
+                          the rest" — fades in once the copy row has
+                          landed.
+*/
+.ca-flow-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--col-axpo);
+  opacity: 0;
+  margin: -2px 0;
+}
+.ca-flow-arrow svg {
+  display: block;
+  width: 22px;
+  height: 36px;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--col-axpo) 40%, transparent));
+}
+.ca-flow-arrow-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--col-axpo) 85%, var(--fg-soft));
+  white-space: nowrap;
+}
+.ca-flow-arrow-copy {
+  animation: ca-flow-arrow-copy-show 20s ease-out both infinite;
+}
+.ca-flow-arrow-copy svg { width: 26px; height: 40px; }
+.ca-flow-arrow-copy .ca-flow-arrow-label { font-size: 0.82rem; }
+@keyframes ca-flow-arrow-copy-show {
+  /* Hidden through the GRPO build. */
+  0%, 21%        { opacity: 0; transform: translateY(-4px); }
+  /* Appears as the copy chips start dropping. */
+  24%            { opacity: 1; transform: translateY(0); }
+  /* Stays visible through the entire loop so the 3-row structure reads. */
+  28%, 76%, 96%  { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-4px); }
+}
+.ca-flow-arrow-extract {
+  /* Pulled to the left edge of the stage (not centered like the legend
+     row) and laid out horizontally — the arrow is small and the label
+     is the focus, so it reads as "↓ extract …" in one inline beat. */
+  align-self: flex-start;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-left: 2px;
+  animation: ca-flow-arrow-extract-show 20s ease-out both infinite;
+}
+.ca-flow-arrow-extract svg {
+  /* Compact arrow next to the larger label — the label carries the
+     meaning ("extract Q + think, resample the rest"), the arrow is
+     just the visual hint that something flows down into row 3. */
+  width: 26px;
+  height: 30px;
+}
+.ca-flow-arrow-extract .ca-flow-arrow-label {
+  font-size: 1.18rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+@keyframes ca-flow-arrow-extract-show {
+  /* Hidden through GRPO build + copy-row drop. */
+  0%, 32%        { opacity: 0; transform: translateY(-4px); }
+  /* Appears right before the AXPO Q+think extract motion starts. */
+  35%            { opacity: 1; transform: translateY(0); }
+  38%, 76%, 96%  { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-4px); }
+}
+
+/* "tool collapse" diagnostic label — pops in shortly after the ✗ and
+   per-chip − rewards have landed (≈30%), so the viewer first SEES the
+   failure mode, then reads its NAME. Tinted red to bind it visually
+   to the negative-reward badges next to it. */
+/* Force the GRPO row's rollout-wrap to stay on one line so the
+   "tool collapse" tag sits to the RIGHT of the ✗ verdict (inline)
+   instead of wrapping to a fresh line on the left. */
+.ca-step-grpo .ca-rollout-wrap {
+  flex-wrap: nowrap;
+}
+.ca-collapse-tag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 12px;
+  padding: 5px 14px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Bumped up substantially so the diagnostic name reads as a
+     proper callout label, not a footnote. */
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  color: var(--col-grpo);
+  background: color-mix(in srgb, var(--col-grpo) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--col-grpo) 45%, transparent);
+  border-radius: 999px;
+  white-space: nowrap;
+  /* Keep the tag from being squeezed by other flex siblings — it
+     should always render at its full pill width to the right of ✗. */
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-6px) scale(0.85);
+  animation: ca-collapse-tag-pop 20s ease-out infinite;
+}
+/* Pops in IMMEDIATELY after GRPO's ✗ verdict (~23%), well BEFORE
+   the AXPO copy row starts populating (28%). This way the viewer
+   first reads "GRPO failed — and here's WHY (tool collapse)",
+   then watches AXPO take over to fix it. */
+@keyframes ca-collapse-tag-pop {
+  0%, 22%        { opacity: 0; transform: translateX(-6px) scale(0.85); }
+  /* Bounce in slightly oversized, then settle — punctuates "this is
+     the diagnosis" right after the ✗ lands. */
+  25%            { opacity: 1; transform: translateX(0)    scale(1.15); }
+  28%, 76%, 96%  { opacity: 1; transform: translateX(0)    scale(1);    }
+  100%           { opacity: 0; transform: translateX(-6px) scale(0.85); }
+}
+
+/* ---------- "Tool-usage recovered" tag ---------- */
+/* AXPO-green counterpart to GRPO's "tool collapse" tag. Sits to the
+   right of (1) the Step-1 copy-row rollout box and (2) the Step-2
+   rerolls. Pops in at 80% — the exact beat the <think> badges flip
+   from − to + — so the viewer reads "the think prefix just earned
+   credit" and "AXPO restored tool use" as one synchronized event. */
+.ca-step-copy .ca-rollout-wrap { flex-wrap: nowrap; }
+.ca-recovered-tag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 14px;
+  padding: 5px 14px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  color: var(--col-axpo);
+  background: color-mix(in srgb, var(--col-axpo) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--col-axpo) 50%, transparent);
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-6px) scale(0.85);
+  animation: ca-recovered-tag-pop 20s ease-out infinite;
+}
+/* Pops in at 80% with the think-+ flip, oversized bounce, then a
+   continuous shimmer through the hold phase mirroring the + badges
+   so all three "recovered" cues (Step-1 think+, Step-2 think+,
+   recovered tag) shine in lock-step. Fades out at 100%. */
+@keyframes ca-recovered-tag-pop {
+  0%, 78%  { opacity: 0; transform: translateX(-6px) scale(0.85);
+             box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+  80%      { opacity: 1; transform: translateX(0)    scale(1.15);
+             box-shadow: 0 2px 10px -2px rgba(0,0,0,0.20),
+                         0 0 0 6px  color-mix(in srgb, var(--col-axpo) 35%, transparent),
+                         0 0 0 12px color-mix(in srgb, var(--col-axpo) 14%, transparent); }
+  83%      { opacity: 1; transform: translateX(0)    scale(1);
+             box-shadow: 0 2px 8px -2px rgba(0,0,0,0.18),
+                         0 0 0 4px  color-mix(in srgb, var(--col-axpo) 24%, transparent); }
+  /* Shimmer — same 3-pulse pattern (86 / 90 / 94%) as the think + badges */
+  86%      { box-shadow: 0 2px 8px -2px rgba(0,0,0,0.18),
+                         0 0 0 8px  color-mix(in srgb, var(--col-axpo) 38%, transparent),
+                         0 0 0 14px color-mix(in srgb, var(--col-axpo) 14%, transparent);
+             transform: translateX(0) scale(1.04); }
+  88%      { box-shadow: 0 2px 8px -2px rgba(0,0,0,0.18),
+                         0 0 0 4px  color-mix(in srgb, var(--col-axpo) 22%, transparent);
+             transform: translateX(0) scale(1); }
+  90%      { box-shadow: 0 2px 8px -2px rgba(0,0,0,0.18),
+                         0 0 0 8px  color-mix(in srgb, var(--col-axpo) 38%, transparent),
+                         0 0 0 14px color-mix(in srgb, var(--col-axpo) 14%, transparent);
+             transform: translateX(0) scale(1.04); }
+  92%      { box-shadow: 0 2px 8px -2px rgba(0,0,0,0.18),
+                         0 0 0 4px  color-mix(in srgb, var(--col-axpo) 22%, transparent);
+             transform: translateX(0) scale(1); }
+  94%      { box-shadow: 0 2px 8px -2px rgba(0,0,0,0.18),
+                         0 0 0 8px  color-mix(in srgb, var(--col-axpo) 38%, transparent),
+                         0 0 0 14px color-mix(in srgb, var(--col-axpo) 14%, transparent);
+             transform: translateX(0) scale(1.04); }
+  96%      { opacity: 1; transform: translateX(0) scale(1);
+             box-shadow: 0 2px 8px -2px rgba(0,0,0,0.18),
+                         0 0 0 4px  color-mix(in srgb, var(--col-axpo) 22%, transparent); }
+  100%     { opacity: 0; transform: translateX(-6px) scale(0.85);
+             box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+}
+
+/* (Removed the green "boundary flash" on GRPO's <think> at ~30-42%.
+   It was tinting the chip with NVIDIA green right before the AXPO
+   copy animation, which read as if GRPO's think was already being
+   rewarded. The AXPO Question + think chips falling from this chip's
+   position carry enough of a visual cue on their own.) */
+
+/* ---------- Corner reward badges on <think> ---------- */
+/* A big − or + sits in the top-right corner of the <think> segment,
+   making the sign — which is the whole story — pop visually. */
+.ca-seg-reward {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+  z-index: 3;
+  border: 2px solid var(--bg);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.28);
+}
+.ca-seg-reward-neg { background: var(--col-grpo); }
+.ca-seg-reward-pos { background: var(--col-axpo); }
+
+/* (No extra right-margin on <think> chips that carry a reward badge —
+   we want the badge to float over the next arrow just like the badges
+   on tool_call / output do, so all three GRPO chips read with uniform
+   spacing. The AXPO trunk <think> overrides this elsewhere to keep
+   the branch SVG flush.) */
+
+/* GRPO corner badge: appears once verdict lands (~27%) and stays
+   to the end of the loop. Includes a small pop scale on entry. */
+.ca-grpo-reward {
+  opacity: 0;
+  transform: scale(0.5);
+  animation: ca-grpo-reward-show 20s ease-out infinite;
+}
+@keyframes ca-grpo-reward-show {
+  0%, 22%        { opacity: 0; transform: scale(0.5); }
+  24%            { opacity: 1; transform: scale(1.25); }
+  27%, 76%, 96%  { opacity: 1; transform: scale(1); }
+  100%           { opacity: 0; transform: scale(0.5); }
+}
+
+/* (The "Tool Collapse" consequence caption was removed — the copy
+   action now starts right after GRPO finishes, so the AXPO solution
+   gets the spotlight without a verbal explanation in between.) */
+
+/* (GRPO <think>'s reward stays − for the entire loop — GRPO has no
+   mechanism to revise it. The − badge on GRPO's <think> uses the
+   shared .ca-grpo-reward pop-in just like tool_call / output, so all
+   three failed segments visibly earn the same negative signal.) */
+
+/* (The AXPO prefix <think> no longer carries a ± reward badge — the
+   story is now "AXPO eventually finds a good trajectory", not "credit
+   flips the prefix's reward sign". The chosen reroll itself (reroll-3)
+   is visually framed below to carry the same payoff.) */
+
+/* (The intermediate .ca-copy-line block — ghost Question + think with
+   a "copy ... as the frozen prefix" caption — was removed. The AXPO
+   borrowed chips themselves now fall from the GRPO row position
+   straight into the AXPO trunk (see .ca-seg-borrowed above), so the
+   viewer sees ONE pair travel down rather than a ghost pair + a
+   duplicate borrowed pair appearing at overlapping times.) */
+
+/* ---------- AXPO step ---------- */
+.ca-step-axpo { gap: 14px; }
+
+/* The AXPO header (method chip + tag) only shows up AFTER the
+   borrowed Question + think chips finish their fall from the GRPO
+   row and snap into the AXPO trunk slot (~40%). Sequence reads as:
+   "the prefix is copied down → THEN the AXPO step begins" rather
+   than the AXPO label pre-announcing what's about to happen. */
+.ca-step-axpo .ca-step-label {
+  /* Step 2 row label only has the "Step 2 — …" caption (no AXPO pill,
+     since Step 1's row above already established the AXPO context).
+     Sits at the same left edge as the AXPO pill above so the two
+     captions line up under one shared AXPO header. */
+  opacity: 0;
+  transform: translateY(-4px);
+  animation: ca-axpo-label-show 20s ease-out infinite;
+}
+@keyframes ca-axpo-label-show {
+  /* Bumped to after the borrowed prefix lands in the AXPO trunk (46%)
+     — copy-row insertion pushed every AXPO landmark slightly later. */
+  0%, 46%        { opacity: 0; transform: translateY(-4px); }
+  49%, 76%, 96%  { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-4px); }
+}
+
+.ca-pin {
+  font-size: 1.05rem;
+  opacity: 0;
+  animation: ca-pin-snap 20s ease-out infinite;
+  transform-origin: center;
+}
+@keyframes ca-pin-snap {
+  /* Snap onto the borrowed Q + think once they've fully landed in
+     the AXPO trunk (~50%). */
+  0%, 47%        { opacity: 0; transform: scale(0.4) rotate(-30deg); }
+  50%            { opacity: 1; transform: scale(1.35) rotate(0deg); }
+  54%, 76%, 96%  { opacity: 1; transform: scale(1)    rotate(0deg); }
+  100%           { opacity: 0; transform: scale(0.4)  rotate(-30deg); }
+}
+/* The AXPO Question + think chips are the FROZEN prefix that AXPO
+   operates on. They appear DIRECTLY in their AXPO trunk position
+   (no slide animation from the copy row above) with a brief green
+   halo so the viewer registers "this prefix is now fixed here for
+   resampling." The extract-arrow above the AXPO row provides the
+   narrative link to the copy row — the chips themselves don't need
+   to physically migrate. */
+.ca-seg-borrowed {
+  /* The borrowed Q + think are the FROZEN prefix that AXPO operates
+     on. Per design: no slide-from-copy-row animation — they just
+     appear in place at the AXPO trunk position with a brief green
+     halo so the viewer registers "this prefix is now fixed here."
+     The extract-arrow above provides the narrative link to the
+     copy row; the chips themselves don't need to physically migrate. */
+  opacity: 0;
+  animation: ca-borrowed-drop 20s ease-out infinite;
+}
+@keyframes ca-borrowed-drop {
+  /* Hidden through GRPO build, tool-collapse pop, AND copy-row drop
+     (copy chip 3 with 0.34s delay settles at ~39.4%, so we wait
+     until 40% before fixing the prefix in the AXPO trunk). */
+  0%, 40%        { opacity: 0; transform: scale(0.92);
+                   filter: drop-shadow(0 0 0 transparent); }
+  /* Appears in place with a vivid green halo + slight pop — reads as
+     "this prefix is now FROZEN here for resampling." */
+  43%            { opacity: 1; transform: scale(1.06);
+                   filter: drop-shadow(0 0 12px color-mix(in srgb, var(--col-axpo) 80%, transparent)); }
+  /* Settles to natural size while halo fades. */
+  47%            { opacity: 1; transform: scale(1);
+                   filter: drop-shadow(0 0 6px color-mix(in srgb, var(--col-axpo) 35%, transparent)); }
+  50%, 76%, 96%  { opacity: 1; transform: scale(1);
+                   filter: drop-shadow(0 0 0 transparent); }
+  100%           { opacity: 0; transform: scale(0.92);
+                   filter: drop-shadow(0 0 0 transparent); }
+}
+
+/* "+" operator between borrowed Question and borrowed think: pops UP
+   from below after both chips have landed, because (unlike the chips)
+   it has no GRPO origin to descend from — it's an AXPO-only join
+   operator that should feel like it "appears" between the two
+   already-placed pieces. */
+.ca-axpo-plus {
+  opacity: 0;
+  transform: translateY(8px) scale(0.6);
+  animation: ca-axpo-plus-rise 20s ease-out infinite;
+}
+@keyframes ca-axpo-plus-rise {
+  /* Now follows the borrowed in-place appear (settled by 50%). */
+  0%, 50%        { opacity: 0; transform: translateY(8px) scale(0.6); }
+  /* Pops UP from below AFTER both borrowed chips have settled in
+     place, so the eye reads Question → think first, then "+" joins. */
+  52%            { opacity: 1; transform: translateY(-2px) scale(1.18); }
+  55%, 76%, 96%  { opacity: 1; transform: translateY(0)   scale(1);    }
+  100%           { opacity: 0; transform: translateY(8px) scale(0.6);  }
+}
+/* Branches grid:
+     col 1  Question chip   (input, pinned)
+     col 2  →
+     col 3  think trunk     (frozen prefix, pinned)
+     col 4  SVG branches
+     col 5  stacked rerolls
+   Each chip is its own grid cell so they vertically align with the GRPO
+   row above (which also has Question outside the rollout box). */
+.ca-branches {
+  display: grid;
+  /* 6 columns: Question + plus + think + branches + rerolls + recovered-tag.
+     `auto` for the rerolls / recovered-tag so they hug their content
+     rather than stretching. Branch col widened to 60 to fit the
+     larger SVG without compressing the tree. */
+  grid-template-columns: auto auto auto 60px auto auto;
+  gap: 0 8px;
+  align-items: center;
+  padding-top: 6px; /* room for the corner pin / reward badges above chips */
+  /* fit-content keeps the grid box from extending past its rightmost
+     cell — without it the grid container fills the .ca-stage width
+     and you can see grid-empty space painted to the right of the
+     reroll column. */
+  width: fit-content;
+  max-width: 100%;
+}
+/* The think chip sits directly in the grid as the trunk now (no wrapper),
+   so cancel the default reward-badge margin so it doesn't push the SVG
+   branch column away to the right. */
+.ca-seg-think.ca-tree-trunk,
+.ca-seg-think.ca-tree-trunk:has(.ca-seg-reward) {
+  align-self: center;
+  margin-right: 0;
+}
+
+/* Corner pin overlay that sits on top of a frozen/input chip. Default
+   timing snaps in at ~52–60% of the loop, syncing with when the borrowed
+   think lands in the AXPO trunk. */
+.ca-seg:has(.ca-seg-pin) {
+  position: relative;
+}
+.ca-seg-pin {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 22px;
+  height: 22px;
+  line-height: 0;
+  z-index: 4;
+  opacity: 0;
+  transform: scale(0.4) rotate(-30deg);
+  transform-origin: center;
+  animation: ca-pin-snap 20s ease-out infinite;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 1.5px rgba(0,0,0,0.3));
+}
+.ca-seg-pin svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* Static variant — the pin appears together with its chip rather than
+   snapping in later. Used on the GRPO row's Question, which is the
+   user's fixed input (always pinned, not part of AXPO's later freeze
+   moment). */
+.ca-seg-pin-static {
+  animation-name: ca-pin-pop-q;
+}
+@keyframes ca-pin-pop-q {
+  0%             { opacity: 0; transform: scale(0.5) rotate(-20deg); }
+  2%             { opacity: 0; transform: scale(0.5) rotate(-20deg); }
+  3%             { opacity: 1; transform: scale(1.2)  rotate(0deg); }
+  6%, 76%, 96%   { opacity: 1; transform: scale(1)    rotate(0deg); }
+  100%           { opacity: 0; transform: scale(0.5) rotate(-20deg); }
+}
+.ca-branch-svg {
+  width: 70px;
+  height: 140px;
+  align-self: stretch;
+}
+.ca-branch {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 140;
+  stroke-dashoffset: 140;
+  animation: ca-branch-draw 20s ease-out infinite;
+}
+/* All branches are NEUTRAL GRAY during the rollout itself — same
+   policy as the reroll boxes: the rollout-in-progress carries no
+   color, only the verdict (✗ / ✓) and per-chip ± badges do. The
+   successful b3 branch transitions to AXPO green only AFTER the
+   ✓ verdict on reroll-3 lands (~66%), in lockstep with reroll-3's
+   box turning green. b1 and b2 stay gray for the whole loop. */
+.ca-branch.ca-b1 { stroke: color-mix(in srgb, var(--fg) 38%, transparent); animation-name: ca-branch-draw-1; }
+.ca-branch.ca-b2 { stroke: color-mix(in srgb, var(--fg) 38%, transparent); animation-name: ca-branch-draw-2; }
+.ca-branch.ca-b3 { animation-name: ca-branch-draw-3; stroke-width: 2.5; }
+/* Each branch draws WHILE its reroll box is sliding in — the line is
+   the visual "this rollout is branching off the trunk", so it makes
+   sense for it to grow in concert with its reroll box appearing,
+   then sit in place while the chips inside populate the box.
+   Reroll box timings (from ca-reroll-pop-*):
+     reroll-1 box at 37→40%   →  branch-1 draws 37→42%
+     reroll-2 box at 46→50%   →  branch-2 draws 46→52%
+     reroll-3 box at 56→59%   →  branch-3 draws 56→61% (gray)
+                                  then turns green when ✓ lands (~66%) */
+@keyframes ca-branch-draw-1 {
+  /* Shifted +10% — branches now draw AFTER Q+think have appeared in
+     the AXPO trunk (settled ~47%). */
+  0%, 46%        { stroke-dashoffset: 140; }
+  52%, 76%, 96%  { stroke-dashoffset: 0;   }
+  100%           { stroke-dashoffset: 140; }
+}
+@keyframes ca-branch-draw-2 {
+  0%, 55%        { stroke-dashoffset: 140; }
+  62%, 76%, 96%  { stroke-dashoffset: 0;   }
+  100%           { stroke-dashoffset: 140; }
+}
+@keyframes ca-branch-draw-3 {
+  /* Hidden + neutral until reroll-3 starts sliding in (+10% shift). */
+  0%, 65%        { stroke-dashoffset: 140;
+                   stroke: color-mix(in srgb, var(--fg) 38%, transparent); }
+  /* Draws in gray, synchronized with the reroll-3 box sliding in. */
+  71%            { stroke-dashoffset: 0;
+                   stroke: color-mix(in srgb, var(--fg) 38%, transparent); }
+  /* Holds gray while the chips inside the box populate. */
+  74%            { stroke-dashoffset: 0;
+                   stroke: color-mix(in srgb, var(--fg) 38%, transparent); }
+  /* Turns green the moment the ✓ verdict lands on reroll-3 — same
+     beat as the reroll-3 box itself getting its green halo, so the
+     "this is the kept trajectory" moment reads as a single flash.
+     Shifted +10% so this matches the new ca-rr-popgood-80 timing. */
+  78%, 86%, 96%  { stroke-dashoffset: 0;
+                   stroke: var(--col-axpo); }
+  100%           { stroke-dashoffset: 140;
+                   stroke: color-mix(in srgb, var(--fg) 38%, transparent); }
+}
+
+.ca-rerolls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ca-reroll {
+  padding: 7px 12px;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  opacity: 0;
+  /* All rollout boxes are neutral gray during the rollout itself —
+     the result (✗ / ✓) and the per-chip ± reward badges are what
+     carry the red/green meaning. The boxes only turn green AFTER the
+     ✓ lands, marking the kept trajectory. */
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--fg) 22%, transparent);
+}
+/* Sequential reveal: reroll-1 first (fails), reroll-2 second (fails),
+   reroll-3 last (succeeds, with a green halo). The bigger gaps between
+   pop-ins are what makes the narrative read as "trying again… and
+   again… and suddenly — found it." */
+.ca-reroll-1 {
+  animation: ca-reroll-pop-1 20s ease-out infinite;
+}
+.ca-reroll-2 {
+  animation: ca-reroll-pop-2 20s ease-out infinite;
+}
+.ca-reroll-3 {
+  /* Same neutral starting style as reroll-1/2 — the green frame is
+     added ONLY in the post-✓ keyframes of ca-reroll-pop-3 below. */
+  animation: ca-reroll-pop-3 20s ease-out infinite;
+}
+/* Outer box slides in EARLY (empty) — the chips inside then pop one
+   after another to fill it, matching GRPO's segment-by-segment build.
+   Reroll-3's box also stays visible early but doesn't get its halo
+   until the ✓ verdict pops at ~80%. */
+@keyframes ca-reroll-pop-1 {
+  /* +10% shift — boxes only start appearing AFTER the AXPO trunk's
+     Q+think have settled (~47%), so the viewer sees the prefix BEFORE
+     any rollouts branch off it. */
+  0%, 47%        { opacity: 0; transform: translateX(-6px); }
+  50%, 76%, 96%  { opacity: 1; transform: translateX(0); }
+  100%           { opacity: 0; transform: translateX(-6px); }
+}
+@keyframes ca-reroll-pop-2 {
+  0%, 56%        { opacity: 0; transform: translateX(-6px); }
+  60%, 76%, 96%  { opacity: 1; transform: translateX(0); }
+  100%           { opacity: 0; transform: translateX(-6px); }
+}
+/* reroll-3 is the "kept good trajectory" — once ✓ lands, its outer
+   box stays wrapped in a persistent green halo for the rest of the
+   loop, acting as the "this is the answer we keep" frame. The brief
+   pulse at ✓ time gives it a clear arrival moment first; from there
+   the halo holds steady through the 76→96% end-of-loop pause. */
+@keyframes ca-reroll-pop-3 {
+  /* +10% shift — slides in neutral (gray, like reroll-1/2). */
+  0%, 66%        { opacity: 0; transform: translateX(-6px);
+                   background: color-mix(in srgb, var(--fg) 6%, transparent);
+                   border-color: color-mix(in srgb, var(--fg) 22%, transparent);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+  69%, 72%       { opacity: 1; transform: translateX(0);
+                   background: color-mix(in srgb, var(--fg) 6%, transparent);
+                   border-color: color-mix(in srgb, var(--fg) 22%, transparent);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+  /* The instant ✓ lands (~76%), the box flips to the green-framed
+     "kept trajectory" state: green tinted bg, green border, halo. */
+  76%            { opacity: 1; transform: translateX(0);
+                   background: color-mix(in srgb, var(--col-axpo) 14%, transparent);
+                   border-color: var(--col-axpo);
+                   box-shadow: 0 0 0 8px color-mix(in srgb, var(--col-axpo) 45%, transparent); }
+  80%, 86%, 96%  { opacity: 1; transform: translateX(0);
+                   background: color-mix(in srgb, var(--col-axpo) 14%, transparent);
+                   border-color: var(--col-axpo);
+                   box-shadow: 0 0 0 4px color-mix(in srgb, var(--col-axpo) 32%, transparent),
+                               0 6px 18px -6px color-mix(in srgb, var(--col-axpo) 50%, transparent); }
+  100%           { opacity: 0; transform: translateX(-6px);
+                   background: color-mix(in srgb, var(--fg) 6%, transparent);
+                   border-color: color-mix(in srgb, var(--fg) 22%, transparent);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+}
+
+/* ---------- Per-chip sequencing inside each reroll ----------
+   Each reroll plays out tool_call → output → verdict (just like the
+   GRPO row), so the viewer sees the rollout HAPPENING rather than
+   appearing all at once. The arrow before each chip carries the same
+   pop class so it fades in WITH the chip it leads into. */
+.ca-rr1-tool, .ca-rr1-out, .ca-rr1-bad,
+.ca-rr2-tool, .ca-rr2-out, .ca-rr2-bad,
+.ca-rr3-tool, .ca-rr3-out, .ca-rr3-good {
+  opacity: 0;
+  animation-duration: 20s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-out;
+  animation-fill-mode: both;
+}
+.ca-rr1-tool { animation-name: ca-rr-pop-50; }
+.ca-rr1-out  { animation-name: ca-rr-pop-53; }
+.ca-rr1-bad  { animation-name: ca-rr-popbad-56; }
+.ca-rr2-tool { animation-name: ca-rr-pop-62; }
+.ca-rr2-out  { animation-name: ca-rr-pop-65; }
+.ca-rr2-bad  { animation-name: ca-rr-popbad-68; }
+.ca-rr3-tool { animation-name: ca-rr-pop-74; }
+.ca-rr3-out  { animation-name: ca-rr-pop-77; }
+.ca-rr3-good { animation-name: ca-rr-popgood-80; }
+
+@keyframes ca-rr-pop-50 {
+  /* +10% shift — synced with the reroll-1 box arriving (ca-reroll-pop-1
+     at 47→50%) so the box never appears empty — first chip materializes
+     inside it at the same beat. */
+  0%, 47%        { opacity: 0; transform: translateY(-3px); }
+  50%, 76%, 96%  { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-3px); }
+}
+@keyframes ca-rr-pop-53 {
+  0%, 52%        { opacity: 0; transform: translateY(-3px); }
+  54%, 76%, 96%  { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-3px); }
+}
+@keyframes ca-rr-popbad-56 {
+  0%, 55%        { opacity: 0; transform: scale(0.5); }
+  56%            { opacity: 1; transform: scale(1.2); }
+  58%, 76%, 96%  { opacity: 1; transform: scale(1); }
+  100%           { opacity: 0; transform: scale(0.5); }
+}
+@keyframes ca-rr-pop-62 {
+  /* +10% shift — synced with the reroll-2 box (ca-reroll-pop-2 at
+     56→60%). */
+  0%, 56%        { opacity: 0; transform: translateY(-3px); }
+  60%, 76%, 96%  { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-3px); }
+}
+@keyframes ca-rr-pop-65 {
+  0%, 62%        { opacity: 0; transform: translateY(-3px); }
+  64%, 76%, 96%  { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-3px); }
+}
+@keyframes ca-rr-popbad-68 {
+  0%, 64%        { opacity: 0; transform: scale(0.5); }
+  66%            { opacity: 1; transform: scale(1.2); }
+  68%, 76%, 96%  { opacity: 1; transform: scale(1); }
+  100%           { opacity: 0; transform: scale(0.5); }
+}
+@keyframes ca-rr-pop-74 {
+  /* +10% shift — synced with the reroll-3 box (ca-reroll-pop-3 at
+     66→69%). */
+  0%, 66%        { opacity: 0; transform: translateY(-3px); }
+  69%, 76%, 96%  { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-3px); }
+}
+@keyframes ca-rr-pop-77 {
+  0%, 72%        { opacity: 0; transform: translateY(-3px); }
+  73%, 86%, 96%  { opacity: 1; transform: translateY(0); }
+  100%           { opacity: 0; transform: translateY(-3px); }
+}
+/* ✓ pops a little bigger to land as the dramatic success moment. */
+@keyframes ca-rr-popgood-80 {
+  0%, 74%        { opacity: 0; transform: scale(0.5); }
+  76%            { opacity: 1; transform: scale(1.35); }
+  78%, 86%, 96%  { opacity: 1; transform: scale(1); }
+  100%           { opacity: 0; transform: scale(0.5); }
+}
+
+/* Per-rollout − reward badges: appear right after their reroll fades in,
+   so every failed re-rollout visibly "earns" its own negative reward
+   before the next one is tried. */
+.ca-reroll-reward {
+  opacity: 0;
+  transform: scale(0.5);
+}
+.ca-reroll-reward-1 { animation: ca-reroll-reward-pop-1 20s ease-out infinite; }
+.ca-reroll-reward-2 { animation: ca-reroll-reward-pop-2 20s ease-out infinite; }
+/* − badges land WELL AFTER each reroll's ✗ verdict so the order reads
+   clearly: "rollout plays out → wrong → THEN reward assigned".
+   Both tool_call's and output's − badges share the same per-reroll
+   keyframe so they pop together. */
+@keyframes ca-reroll-reward-pop-1 {
+  /* +10% shift — − badges land WELL AFTER each reroll's ✗ verdict. */
+  0%, 58%        { opacity: 0; transform: scale(0.5); }
+  60%            { opacity: 1; transform: scale(1.25); }
+  62%, 76%, 96%  { opacity: 1; transform: scale(1); }
+  100%           { opacity: 0; transform: scale(0.5); }
+}
+@keyframes ca-reroll-reward-pop-2 {
+  0%, 68%        { opacity: 0; transform: scale(0.5); }
+  69%            { opacity: 1; transform: scale(1.25); }
+  72%, 86%, 96%  { opacity: 1; transform: scale(1); }
+  100%           { opacity: 0; transform: scale(0.5); }
+}
+
+/* + reward on reroll-3's tool call & output: the kept-good trajectory's
+   actually-taken actions earn positive reward. Lands together with the
+   ✓ verdict and the persistent green halo on the reroll-3 box, so the
+   eye reads "this whole row is the trajectory AXPO keeps". */
+.ca-reroll-reward-pos {
+  opacity: 0;
+  transform: scale(0.5);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent);
+  animation: ca-reroll-reward-pos-show 20s ease-out infinite;
+}
+@keyframes ca-reroll-reward-pos-show {
+  /* +10% shift — + badges land RIGHT AFTER reroll-3's ✓ verdict (~76%). */
+  0%, 76%        { opacity: 0; transform: scale(0.5);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+  77%            { opacity: 1; transform: scale(1.3);
+                   box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.28),
+                               0 0 0 7px color-mix(in srgb, var(--col-axpo) 30%, transparent); }
+  80%, 86%, 96%  { opacity: 1; transform: scale(1);
+                   box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.28),
+                               0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+  100%           { opacity: 0; transform: scale(0.5); }
+}
+
+/* ---------- AXPO `think` + badge: the headline flip ----------
+   The AXPO `think` chip is the rhetorical climax of the whole figure:
+   GRPO assigns − to this same prefix (visible in the row above and
+   never revised), but AXPO flips it to +. To make that contrast
+   readable at a glance we play this in TWO acts:
+     1. reroll-3's tool_call / output + badges land at 67% (the actually-
+        taken actions earn credit first).
+     2. A beat later (~70%), the think + badge POPS in with extra
+        drama AND the think chip itself blooms a green halo around it.
+   The halo decays into a soft permanent green tint that stays through
+   the hold phase, so afterwards the viewer keeps seeing the think
+   chip as "the prefix AXPO kept and rewarded". */
+.ca-axpo-think-flip {
+  opacity: 0;
+  transform: scale(0.5);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent);
+  animation: ca-axpo-think-flip-show 20s ease-out infinite;
+}
+@keyframes ca-axpo-think-flip-show {
+  /* +10% shift — think + lands AFTER the reroll-3 pos rewards (~77%),
+     completing the chain: ✓ → tool/output get +, then think prefix
+     finally earns its + too. This is THE headline moment. */
+  0%, 79%        { opacity: 0; transform: scale(0.5);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+  /* Bigger initial pop than the other + badges — this is THE moment. */
+  80%            { opacity: 1; transform: scale(1.7);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 12px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 0 20px color-mix(in srgb, var(--col-axpo) 22%, transparent); }
+  82%            { opacity: 1; transform: scale(1);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 7px color-mix(in srgb, var(--col-axpo) 38%, transparent); }
+  /* Secondary pulse for a heartbeat-style emphasis (+10% shift). */
+  84%            { opacity: 1; transform: scale(1.18);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 10px color-mix(in srgb, var(--col-axpo) 42%, transparent); }
+  /* Continuous shimmer through the hold phase — soft baseline halo
+     alternates with a bigger, brighter pulse so the badge keeps
+     glittering ("계속 shining"). Three full pulses pack into the
+     86→96% hold window. */
+  86%            { opacity: 1; transform: scale(1);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 3px  color-mix(in srgb, var(--col-axpo) 30%, transparent); }
+  88%            { opacity: 1; transform: scale(1.08);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 11px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 22px 3px color-mix(in srgb, var(--col-axpo) 50%, transparent); }
+  90%            { opacity: 1; transform: scale(1);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 3px  color-mix(in srgb, var(--col-axpo) 30%, transparent); }
+  92%            { opacity: 1; transform: scale(1.08);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 11px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 22px 3px color-mix(in srgb, var(--col-axpo) 50%, transparent); }
+  94%            { opacity: 1; transform: scale(1);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 3px  color-mix(in srgb, var(--col-axpo) 30%, transparent); }
+  96%            { opacity: 1; transform: scale(1.08);
+                   box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                               0 0 0 11px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 22px 3px color-mix(in srgb, var(--col-axpo) 50%, transparent); }
+  100%           { opacity: 0; transform: scale(0.5);
+                   box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent); }
+}
+
+/* The think chip itself plays a parallel green bloom + tint when the
+   + badge lands. We have to redeclare ca-borrowed-drop here because
+   .ca-axpo-think-host wins specificity over .ca-seg-borrowed and the
+   shorthand `animation` would otherwise drop the drop animation.
+   Both animations run in parallel and modify disjoint properties
+   (opacity/transform/filter vs box-shadow/background) so they stack
+   cleanly. */
+.ca-axpo-think-host {
+  animation: ca-borrowed-drop 20s ease-in-out infinite,
+             ca-axpo-think-host-flip 20s ease-out infinite;
+}
+@keyframes ca-axpo-think-host-flip {
+  /* +10% shift — bloom syncs with the + badge popping at 80%. */
+  0%, 79%        { box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent);
+                   background: color-mix(in srgb, var(--fg) 9%, transparent); }
+  /* Big green bloom in sync with the + badge's biggest scale. */
+  80%            { box-shadow: 0 0 0 14px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 28px 6px color-mix(in srgb, var(--col-axpo) 65%, transparent);
+                   background: color-mix(in srgb, var(--col-axpo) 38%, var(--bg)); }
+  83%            { box-shadow: 0 0 0 6px color-mix(in srgb, var(--col-axpo) 35%, transparent),
+                               0 0 18px 4px color-mix(in srgb, var(--col-axpo) 42%, transparent);
+                   background: color-mix(in srgb, var(--col-axpo) 22%, var(--bg)); }
+  /* Continuous shimmer through the hold phase — soft inset baseline
+     alternates with a brighter halo so the whole think chip keeps
+     glittering in sync with its + badge ("계속 shining"). */
+  86%            { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 8px 0 color-mix(in srgb, var(--col-axpo) 22%, transparent);
+                   background: color-mix(in srgb, var(--col-axpo) 18%, var(--bg)); }
+  88%            { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 65%, transparent),
+                               0 0 18px 4px color-mix(in srgb, var(--col-axpo) 60%, transparent);
+                   background: color-mix(in srgb, var(--col-axpo) 32%, var(--bg)); }
+  90%            { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 8px 0 color-mix(in srgb, var(--col-axpo) 22%, transparent);
+                   background: color-mix(in srgb, var(--col-axpo) 18%, var(--bg)); }
+  92%            { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 65%, transparent),
+                               0 0 18px 4px color-mix(in srgb, var(--col-axpo) 60%, transparent);
+                   background: color-mix(in srgb, var(--col-axpo) 32%, var(--bg)); }
+  94%            { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                               0 0 8px 0 color-mix(in srgb, var(--col-axpo) 22%, transparent);
+                   background: color-mix(in srgb, var(--col-axpo) 18%, var(--bg)); }
+  96%            { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 65%, transparent),
+                               0 0 18px 4px color-mix(in srgb, var(--col-axpo) 60%, transparent);
+                   background: color-mix(in srgb, var(--col-axpo) 32%, var(--bg)); }
+  100%           { box-shadow: 0 0 0 0 color-mix(in srgb, var(--col-axpo) 0%, transparent);
+                   background: color-mix(in srgb, var(--fg) 9%, transparent); }
+}
+
+/* (The credit-flow arrow / "credit flows back to the prefix" caption
+   was removed — the chosen good trajectory is now framed in-place via
+   reroll-3's persistent green halo, instead of being explained with an
+   arrow back to the prefix.) */
+
+@media (prefers-reduced-motion: reduce) {
+  .ca-grpo-step-q, .ca-grpo-step-0, .ca-grpo-step-1, .ca-grpo-step-2, .ca-grpo-step-3,
+  .ca-rr1-tool, .ca-rr1-out, .ca-rr1-bad,
+  .ca-rr2-tool, .ca-rr2-out, .ca-rr2-bad,
+  .ca-rr3-tool, .ca-rr3-out, .ca-rr3-good,
+  .ca-grpo-reward,
+  .ca-pin, .ca-seg-pin, .ca-seg-borrowed, .ca-axpo-plus,
+  .ca-step-axpo .ca-step-label, .ca-step-copy .ca-step-label,
+  .ca-axpo-think-host, .ca-axpo-think-flip,
+  .ca-grpo-think-host, .ca-grpo-think-flip-out, .ca-grpo-think-flip-in,
+  .ca-copy-step-q, .ca-copy-step-0, .ca-copy-step-1, .ca-copy-step-2, .ca-copy-step-3,
+  .ca-copy-reward, .ca-copy-think-host, .ca-copy-think-flip-out, .ca-copy-think-flip-in,
+  .ca-rollout-copy, .ca-rollout-grpo,
+  .ca-flow-arrow-copy, .ca-flow-arrow-extract,
+  .ca-collapse-tag, .ca-recovered-tag,
+  .ca-branch, .ca-reroll, .ca-reroll-reward, .ca-reroll-reward-pos {
+    animation: none;
+  }
+  .ca-rollout-grpo { border-color: color-mix(in srgb, var(--fg) 22%, transparent);
+                     background: color-mix(in srgb, var(--fg) 4%, transparent); }
+  .ca-grpo-step-q, .ca-grpo-step-0, .ca-grpo-step-1, .ca-grpo-step-2, .ca-grpo-step-3 { opacity: 1; transform: none; }
+  .ca-step-axpo .ca-step-label,
+  .ca-step-copy .ca-step-label { opacity: 1; transform: none; }
+  .ca-grpo-reward { opacity: 1; transform: scale(1); }
+  .ca-pin { opacity: 1; transform: none; }
+  .ca-seg-pin { opacity: 1; transform: none; }
+  .ca-seg-borrowed { opacity: 1; transform: none; }
+  .ca-axpo-plus    { opacity: 1; transform: none; }
+  .ca-collapse-tag { opacity: 1; transform: translateX(0) scale(1); }
+  .ca-recovered-tag { opacity: 1; transform: translateX(0) scale(1); }
+  .ca-branch { stroke-dashoffset: 0; }
+  /* Static end-state matches the post-✓ frame: failed b1/b2 stay
+     gray, successful b3 is green like the kept reroll-3 box. */
+  .ca-branch.ca-b1,
+  .ca-branch.ca-b2 { stroke: color-mix(in srgb, var(--fg) 38%, transparent); }
+  .ca-branch.ca-b3 { stroke: var(--col-axpo); }
+  .ca-reroll { opacity: 1; transform: none; box-shadow: none; }
+  .ca-reroll-reward { opacity: 1; transform: scale(1); }
+  .ca-reroll-reward-pos { opacity: 1; transform: scale(1); box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28); }
+  /* Static end-state for the AXPO think + badge + chip halo so the
+     reduced-motion view still shows the headline "GRPO − → AXPO +"
+     contrast. */
+  .ca-axpo-think-flip { opacity: 1; transform: scale(1);
+                        box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                                    0 0 0 3px color-mix(in srgb, var(--col-axpo) 30%, transparent); }
+  .ca-axpo-think-host { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 55%, transparent),
+                                    0 0 8px 0 color-mix(in srgb, var(--col-axpo) 22%, transparent);
+                        background: color-mix(in srgb, var(--col-axpo) 18%, var(--bg)); }
+  /* Static end-state for the GRPO think flip: − is replaced by +, and
+     the GRPO think chip itself carries the same green tint as AXPO
+     to visualize that credit retroactively flowed back. */
+  .ca-grpo-think-flip-out { opacity: 0; transform: scale(0.4); }
+  .ca-grpo-think-flip-in  { opacity: 1; transform: scale(1);
+                            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                                        0 0 0 3px color-mix(in srgb, var(--col-axpo) 28%, transparent); }
+  .ca-grpo-think-host     { background: color-mix(in srgb, var(--col-axpo) 14%, var(--bg));
+                            box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 50%, transparent),
+                                        0 0 8px 0 color-mix(in srgb, var(--col-axpo) 22%, transparent); }
+  /* Copy row (full trajectory replicated below GRPO) — in static
+     reduced-motion view, all chips, rewards, arrows, and the +
+     think flip are shown in their final settled state so the 3-row
+     story (GRPO → copy → AXPO) reads without any motion. */
+  .ca-copy-step-q, .ca-copy-step-0, .ca-copy-step-1, .ca-copy-step-2, .ca-copy-step-3 {
+    opacity: 1; transform: none; filter: none;
+  }
+  .ca-rollout-copy         { opacity: 1; }
+  .ca-copy-reward          { opacity: 1; transform: scale(1); }
+  .ca-copy-think-flip-out  { opacity: 0; transform: scale(0.4); }
+  .ca-copy-think-flip-in   { opacity: 1; transform: scale(1);
+                             box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28),
+                                         0 0 0 3px color-mix(in srgb, var(--col-axpo) 28%, transparent); }
+  .ca-copy-think-host      { background: color-mix(in srgb, var(--col-axpo) 14%, var(--bg));
+                             box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--col-axpo) 50%, transparent),
+                                         0 0 8px 0 color-mix(in srgb, var(--col-axpo) 22%, transparent); }
+  .ca-flow-arrow-copy,
+  .ca-flow-arrow-extract   { opacity: 1; transform: translateY(0); }
+  .ca-rr1-tool, .ca-rr1-out, .ca-rr1-bad,
+  .ca-rr2-tool, .ca-rr2-out, .ca-rr2-bad,
+  .ca-rr3-tool, .ca-rr3-out, .ca-rr3-good { opacity: 1; transform: none; }
+  /* Static "kept" frame for reroll-3 in reduced-motion view, matching
+     the persistent halo the animation lands on at the end of the loop. */
+  .ca-reroll-3 { background: color-mix(in srgb, var(--col-axpo) 14%, transparent);
+                 border-color: var(--col-axpo);
+                 box-shadow: 0 0 0 4px color-mix(in srgb, var(--col-axpo) 32%, transparent),
+                             0 6px 18px -6px color-mix(in srgb, var(--col-axpo) 50%, transparent); }
+}
+
+@media (max-width: 640px) {
+  /* Concept animation on mobile: the chip-by-chip trajectory has a
+     natural width (≈440px for the GRPO rollout, ≈575px for the AXPO
+     branches grid) that exceeds a typical phone viewport. The
+     figure-card's default `overflow: hidden` would clip the right
+     two-thirds of every row, leaving the user staring at
+     "Question → think …" with no visible payoff.
+     Trade the hard clip for a horizontal scroll container with a
+     soft fade hint on the right edge so the cut-off content is
+     swipeable and discoverable. */
+  .concept-anim-figure {
+    padding: 16px;
+    margin-top: 18px;
+    /* Override .figure-card's `overflow: hidden` on mobile so the
+       trajectory chips that don't fit in a phone viewport remain
+       reachable via a horizontal swipe instead of being silently
+       clipped. The natural width was reduced upstream (chip
+       min-widths dropped, tags wrapped onto their own row), so the
+       residual scroll is small (~30–60px on narrow phones). */
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .concept-anim-figure .ca-stage {
+    padding: 16px 14px 14px;
+    gap: 18px;
+    /* Size to the natural content width so chips don't have to fight
+       the figure-card for horizontal room. The figure-card scrolls
+       around this. */
+    width: max-content;
+    min-width: calc(100vw - 64px); /* still fill the figure-card when content is narrower */
+  }
+  .ca-legend { font-size: 0.7rem; padding: 6px 8px; gap: 6px 10px; }
+  .ca-legend-badge { min-width: 18px; height: 18px; font-size: 0.78rem; }
+  .ca-legend-verdict { width: 18px; height: 18px; font-size: 0.7rem; }
+  .ca-legend-pin { width: 18px; height: 18px; }
+  .ca-legend-sep { display: none; }
+  .ca-rollout { font-size: 0.7rem; padding: 5px 6px; gap: 3px; }
+  .ca-rollout-wrap { gap: 8px 6px; }
+  /* Recovered/collapse pills: on mobile, force them onto their OWN
+     row below the trajectory so the rollout box gets the entire
+     row width to itself. Without this they'd compete for horizontal
+     room with the chips, and on a narrow phone there isn't enough
+     of either. `flex-basis: 100%` forces a line break inside the
+     parent `.ca-rollout-wrap` (which is `flex-wrap: wrap`). */
+  .ca-collapse-tag,
+  .ca-recovered-tag {
+    font-size: 0.78rem;
+    padding: 2px 8px;
+    margin-left: 0;
+    flex-basis: 100%;
+    align-self: flex-start;
+  }
+  .ca-seg { padding: 0 5px; height: 19px; font-size: 0.68rem; border-radius: 4px; }
+  .ca-arr { font-size: 0.7rem; }
+  .ca-verdict { width: 19px; height: 19px; font-size: 0.7rem; }
+  /* Reward badge on chips also shrinks a hair so it doesn't dominate
+     the now-smaller chip body. */
+  .ca-seg-reward { min-width: 14px; height: 14px; font-size: 0.7rem; }
+  /* Drop the desktop per-chip min-widths on mobile so chips size to
+     their text. The unified-width guarantee (every "Question" chip
+     renders to the same width across rows) is much less important
+     on a narrow phone than just fitting on screen.
+     `min-width: auto` (the flexbox default for `min-content`) keeps
+     the chip from shrinking below its text width — without this
+     override the desktop `min-width: 78px` / 54 / 66 / 54 would
+     still apply and force the chips wider than necessary. */
+  .ca-seg-q,
+  .ca-seg-think,
+  .ca-seg-tool,
+  .ca-seg-out { min-width: auto; }
+  .ca-step-label { font-size: 0.78rem; flex-wrap: wrap; }
+  .ca-method { padding: 2px 8px; font-size: 0.72rem; }
+  .ca-prefix-reward { font-size: 0.7rem; padding: 3px 10px; gap: 6px; }
+  .ca-pr-sign { min-width: 18px; height: 18px; font-size: 0.85rem; }
+  .ca-prefix { padding-left: 4px; gap: 8px; }
+  /* AXPO branches grid on mobile: explicitly demote the
+     "Tool-usage recovered" tag to its own full-width row underneath
+     the branch tree. On desktop it sits in the last grid column
+     beside the rerolls box; on mobile that column makes the whole
+     grid ~575px wide (way past the figure-card). Putting the tag
+     on row 2 lets row 1 (the actual branch diagram) shrink to the
+     ~280px the chips need. */
+  .ca-branches {
+    grid-template-columns: auto auto auto 40px auto;
+    grid-template-rows: auto auto;
+    gap: 0 5px;
+    padding-top: 8px;
+  }
+  .ca-branches > .ca-recovered-tag {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: start;
+    margin-left: 0;
+    margin-top: 8px;
+    flex-basis: auto; /* override the rollout-wrap rule above */
+  }
+  .ca-branch-svg { width: 40px; height: 100px; }
+  .ca-tree-trunk { font-size: 0.78rem; }
+  .ca-seg-pin { width: 14px; height: 14px; top: -8px; left: -8px; }
+  .ca-reroll { font-size: 0.7rem; padding: 4px 8px; }
+  /* Mobile: rows + arrows are tighter, so reduce the drop distances
+     for both the copy-row chips and the AXPO borrowed prefix to keep
+     them landing on the right row. */
+  .ca-copy-step-q, .ca-copy-step-0, .ca-copy-step-1, .ca-copy-step-2, .ca-copy-step-3 {
+    transform: translateY(-80px);
+  }
+  /* Mobile-sized flow arrows. */
+  .ca-flow-arrow svg { width: 18px; height: 28px; }
+  .ca-flow-arrow-copy svg { width: 22px; height: 32px; }
+  .ca-flow-arrow-extract svg { width: 16px; height: 22px; }
+  .ca-flow-arrow-label { font-size: 0.66rem; }
+  .ca-flow-arrow-copy .ca-flow-arrow-label { font-size: 0.72rem; }
+  .ca-flow-arrow-extract .ca-flow-arrow-label { font-size: 0.86rem; }
+}
+
+/* =========================================================
+   Desktop / mobile carousel hint swap
+   ========================================================= */
+.qual-keyhint-mobile { display: none; }
+.qual-swipe-arrow {
+  display: inline-block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent);
+  animation: swipe-nudge 1.6s ease-in-out infinite;
+}
+.qual-swipe-arrow:nth-child(2) {
+  animation-delay: 0.4s;
+}
+@keyframes swipe-nudge {
+  0%, 100% { transform: translateX(0); opacity: 0.7; }
+  50%      { transform: translateX(4px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qual-swipe-arrow { animation: none; }
+  .qual-card,
+  .qual-card.qual-enter-next.active,
+  .qual-card.qual-enter-prev.active { animation: none; }
+}
+@media (max-width: 720px) {
+  .qual-keyhint-desktop { display: none; }
+  .qual-keyhint-mobile  { display: flex; }
+}
+
+/* =========================================================
+   Mobile responsiveness
+   ========================================================= */
+@media (max-width: 640px) {
+  /* Layout / containers */
+  .container { padding: 0 16px; }
+
+  /* Hero */
+  .hero { padding: 56px 0 36px; }
+  .title { font-size: clamp(1.9rem, 8vw, 2.6rem); }
+  .subtitle { font-size: clamp(1rem, 4vw, 1.2rem); }
+
+  .authors { gap: 6px 10px; font-size: 1.02rem; }
+  .affiliations { gap: 10px 16px; font-size: 1.0rem; }
+  .affiliations.small {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.92rem;
+  }
+
+  /* Buttons stack a bit tighter and stretch full width */
+  .actions { gap: 8px; }
+  /* Direct children of .actions split the row evenly — applies to both
+     bare .btn (Paper) and .btn-stack wrappers (Code/Models). The stack
+     wrapper then makes its inner .btn fill its column width. */
+  .actions > .btn,
+  .actions > .btn-stack {
+    flex: 1 1 calc(50% - 4px);
+  }
+  .actions > .btn-stack .btn { width: 100%; }
+  .actions .btn {
+    justify-content: center;
+    padding: 10px 14px;
+    font-size: 0.92rem;
+  }
+  .btn-coming { font-size: 0.74rem; }
+
+  /* Sections */
+  .section { padding: 48px 0; }
+  .section-title { font-size: 1.4rem; }
+  .subsection-title { font-size: 1.05rem; margin: 24px 0 12px; }
+  .section-title + .subsection-title,
+  .section-title.centered + .subsection-title { margin-top: 6px; }
+  .section-lead { font-size: 0.98rem; }
+
+  /* Metrics band: stay 2-column but tighter */
+  .metrics-band { padding: 24px 0; }
+  .metric-value { font-size: 1.8rem; }
+  .metric-label { font-size: 0.8rem; }
+
+  /* Figure cards */
+  .figure-card { padding: 16px; }
+  .headline-figure { margin-bottom: 24px; }
+  .fig-caption { font-size: 0.85rem; }
+
+  /* Method cards */
+  .card { padding: 18px; }
+
+  /* Results table */
+  .results-table-full {
+    font-size: 0.72rem;
+  }
+  .results-table-full th,
+  .results-table-full td {
+    padding: 5px 6px;
+  }
+  .results-table-full td.method,
+  .results-table-full td.method-axpo {
+    padding-left: 10px;
+  }
+  .results-table-full tbody td.avg-cell {
+    font-size: 0.92rem;
+  }
+  .results-table-full tbody tr.axpo-row td.avg-cell {
+    font-size: 0.98rem;
+  }
+  .table-wrap.scroll-x {
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+
+  /* Qualitative carousel */
+  .qual-keyhint {
+    width: auto;
+    margin: 18px 14px 0;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    gap: 8px;
+  }
+  .qual-carousel { margin-top: 18px; }
+  .qual-card {
+    padding: 18px 16px 16px;
+    /* Hint to the browser that horizontal pans are the carousel's job */
+    touch-action: pan-y;
+  }
+  .qual-head {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .qual-prompt { font-size: 0.95rem; }
+  .qual-traj  { padding: 14px 14px; font-size: 0.88rem; }
+  .traj-code  { font-size: 0.76rem; padding: 8px 10px; }
+  .qual-img   { max-height: 220px; }
+  .qual-img-sm { max-width: 100%; }
+  .qual-takeaway {
+    padding: 10px 12px;
+    font-size: 0.88rem;
+  }
+  .qual-controls { gap: 14px; margin-top: 16px; }
+  .qual-btn { width: 48px; height: 48px; font-size: 1.4rem; }
+
+  /* Footer */
+  .footer { padding: 28px 0 36px; font-size: 0.86rem; }
+}
+
+/* Slightly larger phones / small tablets */
+@media (min-width: 641px) and (max-width: 820px) {
+  .actions .btn { padding: 10px 16px; }
+  .results-table-full { font-size: 0.78rem; }
+}
