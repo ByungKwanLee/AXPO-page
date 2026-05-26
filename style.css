@@ -3959,7 +3959,15 @@ html[data-theme="dark"] .ca-seg-out {
     flex-basis: auto; /* override the rollout-wrap rule above */
   }
   .ca-branch-svg { width: 40px; height: 100px; }
-  .ca-tree-trunk { font-size: 0.78rem; }
+  /* Trunk chip on mobile: dropped a hair from 0.78rem -> 0.72rem to
+     keep the wider "tool-think" label proportionate to the rerolls
+     and stop it from dominating the row visually. */
+  .ca-tree-trunk { font-size: 0.72rem; }
+  /* The .ca-seg-think chip carries the longest label of the row
+     ("tool-think" — 10 chars). Tighten its inner padding on mobile
+     so it doesn't single-handedly push the rollout box past the
+     figure-card width on iPhone SE-sized screens. */
+  .ca-seg-think { padding: 0 4px; letter-spacing: -0.01em; }
   .ca-seg-pin { width: 14px; height: 14px; top: -8px; left: -8px; }
   .ca-reroll { font-size: 0.7rem; padding: 4px 8px; }
   /* Mobile: rows + arrows are tighter, so reduce the drop distances
