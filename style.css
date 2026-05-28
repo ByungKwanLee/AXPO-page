@@ -314,6 +314,20 @@ html[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .title::before { animation: none; }
 }
+/* Mobile perf: the title's ambient glow uses a 52px blur with a
+   continuously animated transform+opacity. On lower-end phones that
+   combination is one of the worst-case GPU paths and can cost a few
+   frames per scroll. The blur itself is decorative — losing the pulse
+   doesn't change the page's meaning — so we drop the animation on
+   narrow viewports and let the static gradient sit at its baseline
+   opacity. */
+@media (max-width: 640px) {
+  .title::before {
+    animation: none;
+    opacity: 0.55;
+    transform: none;
+  }
+}
 .subtitle {
   font-size: clamp(1.15rem, 2.2vw, 1.5rem);
   font-weight: 500;
@@ -2181,6 +2195,26 @@ html[data-theme="dark"] .anim-stage {
   .rl-progress-pct  { animation: none; --rl-pct: 100; color: var(--rl-c4); }
 }
 
+/* Offscreen pause: the TL;DR figure runs 4s/8s loops indefinitely.
+   On mobile (and slower laptops) those loops keep burning paint
+   cycles even when scrolled far out of view. JS toggles
+   `.is-offscreen` on the figure via IntersectionObserver; pausing
+   here freezes every infinite animation inside the figure at its
+   current frame without affecting the visible-state once it
+   scrolls back into view. */
+.anim-bars-figure.is-offscreen .bar,
+.anim-bars-figure.is-offscreen .bar-arrow,
+.anim-bars-figure.is-offscreen .rl-progress-fill,
+.anim-bars-figure.is-offscreen .rl-progress-pct {
+  animation-play-state: paused;
+}
+/* Same idea for the hero title's blurred ambient pulse — once the
+   user has scrolled past the hero, there's no reason to keep
+   re-rasterising the 52px-blur layer. */
+.title.is-offscreen::before {
+  animation-play-state: paused;
+}
+
 @media (max-width: 640px) {
   /* TL;DR bars on mobile: stack the row label ABOVE the bar pair so
      the bars get the full container width (≈ 290px on a 360-wide
@@ -2257,6 +2291,30 @@ html[data-theme="dark"] .anim-stage {
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+/* Transparent passthrough wrapper on desktop; on mobile the
+   responsive block below promotes it to the scaled-fit container so
+   .ca-retry-btn stays pinned to the figure's right edge instead of
+   riding along with the (now scaled-down) stage content. */
+.concept-anim-figure .ca-scroll { display: block; }
+
+/* Dynamic scaling mode: JS measures the stage's natural width and
+   shrinks it via `transform: scale(N)` to fit the figure's available
+   width. We collapse the wrapper height to the *scaled* height so the
+   page below doesn't reserve a giant gap, and clip overflow so the
+   transformed (but unscaled-layout) stage doesn't bleed out.
+
+   `transform-origin: top left` is essential — without it the scaled
+   stage centers itself inside its original layout box, which on mobile
+   would leave it offset to the right of the wrapper. */
+.concept-anim-figure.ca-scaled .ca-scroll {
+  overflow: hidden;
+}
+.concept-anim-figure.ca-scaled .ca-stage {
+  transform-origin: top left;
+  /* Hint to the compositor: this layer's transform may change with
+     viewport resize / orientation change. */
+  will-change: transform;
 }
 html[data-theme="dark"] .ca-stage {
   background: color-mix(in srgb, var(--fg) 5%, var(--bg-alt));
@@ -3870,19 +3928,29 @@ html[data-theme="dark"] .ca-seg-out {
      "Question → think …" with no visible payoff.
      Trade the hard clip for a horizontal scroll container with a
      soft fade hint on the right edge so the cut-off content is
-     swipeable and discoverable. */
+     swipeable and discoverable.
+
+     IMPORTANT: the scroll happens on the inner `.ca-scroll` wrapper,
+     NOT on `.concept-anim-figure` itself. Reason: `.ca-retry-btn` is
+     `position: absolute` relative to the figure, and if the figure
+     scrolled, the button would get dragged along with the stage's
+     content (it's a descendant of the scroll container). Keeping the
+     scroll one level deeper lets the button stay pinned to the
+     figure's right edge no matter how far the user has swiped. */
   .concept-anim-figure {
     padding: 16px;
     margin-top: 18px;
-    /* Override .figure-card's `overflow: hidden` on mobile so the
-       trajectory chips that don't fit in a phone viewport remain
-       reachable via a horizontal swipe instead of being silently
-       clipped. The natural width was reduced upstream (chip
-       min-widths dropped, tags wrapped onto their own row), so the
-       residual scroll is small (~30–60px on narrow phones). */
+    /* Override .figure-card's `overflow: hidden` so the .ca-scroll
+       child can size its own overflow without being clipped. */
+    overflow: visible;
+  }
+  .concept-anim-figure .ca-scroll {
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
+    /* Match the figure's old inner border radius so the scroll edge
+       doesn't bleed past the rounded corners. */
+    border-radius: inherit;
   }
   .concept-anim-figure .ca-stage {
     padding: 16px 14px 14px;
@@ -3900,18 +3968,34 @@ html[data-theme="dark"] .ca-seg-out {
   .ca-legend-sep { display: none; }
   .ca-rollout { font-size: 0.7rem; padding: 5px 6px; gap: 3px; }
   .ca-rollout-wrap { gap: 8px 6px; }
+  /* GRPO row and AXPO Step-1 (copy) row: desktop pins these to
+     `flex-wrap: nowrap` so the diagnostic pill sits inline beside
+     the ✗ verdict. On a phone there isn't horizontal room for both
+     — without re-enabling wrap here the pill spills out past the
+     figure card's right edge regardless of the dynamic scale
+     because the `flex-basis: 100%` below has nothing to wrap
+     against. */
+  .ca-step-grpo .ca-rollout-wrap,
+  .ca-step-copy .ca-rollout-wrap {
+    flex-wrap: wrap;
+  }
   /* Recovered/collapse pills: on mobile, force them onto their OWN
      row below the trajectory so the rollout box gets the entire
      row width to itself. Without this they'd compete for horizontal
      room with the chips, and on a narrow phone there isn't enough
-     of either. `flex-basis: 100%` forces a line break inside the
-     parent `.ca-rollout-wrap` (which is `flex-wrap: wrap`). */
+     of either. `flex-basis: 100%` claims a full-width line which
+     guarantees the wrap, then `max-width: max-content` clamps the
+     rendered width back down to the pill's natural content size —
+     so the wrapped pill stays compact (matching the Step-2
+     "Tool-usage recovered" pill that the grid layout already sizes
+     naturally) instead of stretching into a full-width bar. */
   .ca-collapse-tag,
   .ca-recovered-tag {
     font-size: 0.78rem;
     padding: 2px 8px;
     margin-left: 0;
     flex-basis: 100%;
+    max-width: max-content;
     align-self: flex-start;
   }
   .ca-seg { padding: 0 5px; height: 19px; font-size: 0.68rem; border-radius: 4px; }
@@ -3937,26 +4021,30 @@ html[data-theme="dark"] .ca-seg-out {
   .ca-prefix-reward { font-size: 0.7rem; padding: 3px 10px; gap: 6px; }
   .ca-pr-sign { min-width: 18px; height: 18px; font-size: 0.85rem; }
   .ca-prefix { padding-left: 4px; gap: 8px; }
-  /* AXPO branches grid on mobile: explicitly demote the
-     "Tool-usage recovered" tag to its own full-width row underneath
-     the branch tree. On desktop it sits in the last grid column
-     beside the rerolls box; on mobile that column makes the whole
-     grid ~575px wide (way past the figure-card). Putting the tag
-     on row 2 lets row 1 (the actual branch diagram) shrink to the
-     ~280px the chips need. */
+  /* AXPO branches grid on mobile: keep all 6 columns (Question +
+     plus + think + branches SVG + rerolls + recovered-tag) so the
+     "Tool-usage recovered" pill stays inline beside the rerolls —
+     visually consistent with the top GRPO/Step-1 rows where the
+     "Tool Collapse" / "Tool-usage recovered" pills also sit inline
+     to the right of the trajectory.
+     The wider grid (~575px) is no longer a problem because the
+     figure runs through dynamic scaling: JS measures the stage's
+     natural width and applies `transform: scale(N)` so the whole
+     thing fits the viewport regardless of how wide the rightmost
+     column makes it. */
   .ca-branches {
-    grid-template-columns: auto auto auto 40px auto;
-    grid-template-rows: auto auto;
+    grid-template-columns: auto auto auto 40px auto auto;
     gap: 0 5px;
     padding-top: 8px;
   }
   .ca-branches > .ca-recovered-tag {
-    grid-column: 1 / -1;
-    grid-row: 2;
+    /* Snap to col 6 inline with the rerolls box; cancel the
+       flex-basis trick the .ca-rollout-wrap copy of the pill needs
+       (irrelevant for grid items but harmless to clear). */
+    grid-column: 6;
     justify-self: start;
-    margin-left: 0;
-    margin-top: 8px;
-    flex-basis: auto; /* override the rollout-wrap rule above */
+    margin-left: 8px;
+    flex-basis: auto;
   }
   .ca-branch-svg { width: 40px; height: 100px; }
   /* Trunk chip on mobile: dropped a hair from 0.78rem -> 0.72rem to

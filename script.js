@@ -496,6 +496,113 @@
     renderResults(state);
   }
 
+  // ---------- Offscreen pause for infinite CSS animations ----------
+  // Several decorative pieces (the title's ambient blur pulse and the
+  // TL;DR results figure with its bars + RL progress meter) run on
+  // infinite CSS loops. Even paused-looking, those loops continue to
+  // repaint while scrolled out of view — which on a mid-range phone
+  // shows up as scroll jitter once the hero has been left behind.
+  //
+  // This observer adds `is-offscreen` whenever the element leaves the
+  // viewport, and the CSS counterpart maps that class to
+  // `animation-play-state: paused`. When the element scrolls back into
+  // view we strip the class and the animation resumes from where it
+  // left off (so the user never sees a "jump" mid-cycle).
+  (function pauseInfiniteAnimsOffscreen() {
+    if (!("IntersectionObserver" in window)) return;
+    if (window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const targets = document.querySelectorAll(
+      ".title, .anim-bars-figure"
+    );
+    if (!targets.length) return;
+
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        e.target.classList.toggle("is-offscreen", !e.isIntersecting);
+      }
+    }, { rootMargin: "120px 0px 120px 0px" });
+
+    targets.forEach((el) => io.observe(el));
+  })();
+
+  // ---------- AXPO mechanism animation: dynamic mobile scaling ----------
+  // The animation stage has a natural width of ~575px (driven by the
+  // AXPO branches row: question chip + frozen prefix + branch SVG +
+  // 3 re-roll columns). On a 360-wide phone that's almost 2× too wide,
+  // and the horizontal-scroll fallback ends up clipping labels like
+  // "Tool Collapse" → "ol Collapse" and obscures the trajectory.
+  //
+  // Instead we measure the stage's intrinsic width and apply
+  // `transform: scale(N)` so the entire mechanism fits the viewport at
+  // once. Every animated descendant rides along with the parent
+  // transform — no keyframe rewrites required. We collapse the wrapper
+  // height to the scaled height so the figure-card itself stays the
+  // right size, and re-measure on resize / orientation change so a
+  // phone-to-tablet rotation re-fits correctly.
+  (function initMechAnimScale() {
+    const figure = document.querySelector(".concept-anim-figure");
+    if (!figure) return;
+    const scroll = figure.querySelector(".ca-scroll");
+    const stage  = figure.querySelector(".ca-stage");
+    if (!scroll || !stage) return;
+
+    let pending = false;
+
+    function measure() {
+      pending = false;
+
+      const isMobile = window.matchMedia &&
+        window.matchMedia("(max-width: 640px)").matches;
+
+      // Always reset before measuring — both so the desktop transition
+      // wipes any mobile scale and so we measure the *natural* layout
+      // rather than a previously-scaled one.
+      stage.style.transform = "";
+      scroll.style.height = "";
+      figure.classList.remove("ca-scaled");
+
+      if (!isMobile) return;
+
+      // Force layout, then capture intrinsic dimensions of the stage
+      // (which has `width: max-content` on mobile so this is the true
+      // natural width). availableWidth is the wrapper's content box,
+      // i.e. what we have room to fit into.
+      const naturalWidth = stage.offsetWidth;
+      const availableWidth = scroll.clientWidth;
+      if (!naturalWidth || !availableWidth) return;
+
+      // 1px tolerance — sub-pixel rounding shouldn't trigger a scale
+      // of 0.998× that buys nothing and only blurs text.
+      if (naturalWidth <= availableWidth + 1) return;
+
+      const scale = availableWidth / naturalWidth;
+      const naturalHeight = stage.offsetHeight;
+
+      stage.style.transform = "scale(" + scale + ")";
+      scroll.style.height = Math.ceil(naturalHeight * scale) + "px";
+      figure.classList.add("ca-scaled");
+    }
+
+    function schedule() {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(measure);
+    }
+
+    // Initial measure as soon as the DOM is parsed. Re-runs cover:
+    //   - `load`        : images/icons in the stage may shift width
+    //   - `resize`      : viewport size / orientation change
+    //   - fonts.ready   : web fonts shift chip text widths
+    schedule();
+    window.addEventListener("load", schedule);
+    window.addEventListener("resize", schedule);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(schedule).catch(() => {});
+    }
+  })();
+
   // ---------- AXPO mechanism animation: play once, replay on demand ----------
   // The CSS keyframes loop infinitely on their own, but the user prefers
   // a "play once then stop" cadence: after one full cycle we freeze every
@@ -519,11 +626,24 @@
     const btn   = document.getElementById("ca-retry-btn");
     if (!stage || !btn) return;
 
+    // Mobile detection. On a phone the stage (~575px wide for the AXPO
+    // branches row) overflows the viewport and lives inside a
+    // horizontally-scrollable wrapper. A single 20s pass often expires
+    // before the user has finished swiping right to see the re-rolls,
+    // leaving them looking at the frozen end-state without ever having
+    // watched the action. To compensate we (1) wait longer before
+    // starting and (2) play through two cycles before freezing — giving
+    // the swipe-around viewer a second window to catch what they missed.
+    const isMobile = window.matchMedia &&
+      window.matchMedia("(max-width: 640px)").matches;
+
     // One full loop is 20s in the CSS. The hold frame sits at 96% (~19.2s);
     // we pause exactly there so each chip lands on its settled state
-    // instead of getting caught mid-fade-out at 100%.
+    // instead of getting caught mid-fade-out at 100%. On mobile we run
+    // two back-to-back cycles before pausing (see comment above).
     const CYCLE_MS = 20000;
-    const PAUSE_AT_MS = Math.round(CYCLE_MS * 0.96);
+    const CYCLES = isMobile ? 2 : 1;
+    const PAUSE_AT_MS = Math.round(CYCLE_MS * (CYCLES - 1) + CYCLE_MS * 0.96);
     let pauseTimer = null;
     let hasStarted = false;
 
@@ -581,12 +701,26 @@
     // Fast path: if the Method section happens to be in the initial
     // viewport (large desktop, deep-linked anchor, etc.), don't bother
     // waiting for IntersectionObserver — start the cycle right away.
-    if (isInViewport()) {
+    // On mobile we skip this fast path so the IO threshold can require
+    // the stage to be properly centered before kicking off — the
+    // animation is too dense to start the moment the user's swipe is
+    // still in motion at the very bottom of the viewport.
+    if (!isMobile && isInViewport()) {
       play();
       return;
     }
 
     if ("IntersectionObserver" in window) {
+      // Tighter trigger on mobile (threshold 0.35) so the user has
+      // clearly arrived at the section and given it a moment to
+      // settle before the 40s double-cycle starts; desktop keeps the
+      // original generous threshold so deep-linked anchors still
+      // start promptly. The negative bottom rootMargin on mobile
+      // (-20%) also pushes the trigger further into the viewport,
+      // away from the bottom edge.
+      const ioOptions = isMobile
+        ? { threshold: 0.35, rootMargin: "0px 0px -20% 0px" }
+        : { threshold: 0,    rootMargin: "0px 0px -10% 0px" };
       const io = new IntersectionObserver((entries) => {
         for (const e of entries) {
           if (e.isIntersecting && !hasStarted) {
@@ -595,7 +729,7 @@
             break;
           }
         }
-      }, { threshold: 0, rootMargin: "0px 0px -10% 0px" });
+      }, ioOptions);
       io.observe(stage);
     } else {
       // Old browsers: just play immediately, same as before.
