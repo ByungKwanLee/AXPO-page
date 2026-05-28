@@ -2414,9 +2414,14 @@ html[data-theme="dark"] .ca-stage {
   height: 16px;
   display: block;
 }
-@media (prefers-reduced-motion: reduce) {
-  /* Static frame already shown via the reduced-motion fallbacks —
-     no replay control needed (nothing to replay). */
+/* Hide the Replay button whenever the animation isn't actually running:
+   - reduced-motion viewers see the static end-state via the snapshot
+     block below, so there's nothing to replay;
+   - mobile viewers (≤640px) also opt into the static end-state snapshot
+     instead of running the 20-second cycle, for the same reason.
+   The comma-separated media query is an OR — either condition triggers
+   the rule. */
+@media (prefers-reduced-motion: reduce), (max-width: 640px) {
   .ca-retry-btn { display: none; }
 }
 
@@ -3856,7 +3861,21 @@ html[data-theme="dark"] .ca-seg-out {
    reroll-3's persistent green halo, instead of being explained with an
    arrow back to the prefix.) */
 
-@media (prefers-reduced-motion: reduce) {
+/* Static end-state snapshot for the Method concept animation. Triggers
+   in two cases:
+   1. prefers-reduced-motion: reduce — accessibility requirement
+   2. max-width: 640px (mobile) — the 20-second multi-stage cycle is
+      too dense to scroll-into-view + read on a phone; users were
+      missing the action while horizontally scaling/swiping. The
+      figure now reads as a still photograph of the "trained" state
+      on mobile: GRPO failed (✗ + Tool Collapse), AXPO recovered
+      (think flipped to +, branch 3 wins with green halo, Tool-usage
+      recovered tag). The same `(max-width: 640px)` extension is
+      applied to .ca-retry-btn above so no Replay control is shown.
+   Every animation in this section is short-circuited via
+   `animation: none`, and each animated element is pinned to its
+   final hold-frame value below. */
+@media (prefers-reduced-motion: reduce), (max-width: 640px) {
   .ca-grpo-step-q, .ca-grpo-step-0, .ca-grpo-step-1, .ca-grpo-step-2, .ca-grpo-step-3,
   .ca-rr1-tool, .ca-rr1-out, .ca-rr1-bad,
   .ca-rr2-tool, .ca-rr2-out, .ca-rr2-bad,
